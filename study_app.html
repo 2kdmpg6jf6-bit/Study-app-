@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Study App 📚</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f13;color:#f0f0f0;min-height:100vh;}
+#app{max-width:640px;margin:0 auto;padding:1rem;}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* NAME ENTRY */
+.name-screen{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem;padding:2rem;}
+.name-screen h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,#534AB7,#8B7FE8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;}
+.name-screen p{font-size:15px;color:#888;text-align:center;}
+.name-input{width:100%;max-width:340px;padding:14px 18px;border-radius:14px;border:1.5px solid #2e2e3e;background:#1c1c24;color:#f0f0f0;font-size:17px;font-family:inherit;outline:none;text-align:center;}
+.name-input:focus{border-color:#534AB7;}
+.start-btn{width:100%;max-width:340px;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,#534AB7,#7B6FD4);color:white;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;}
+.start-btn:disabled{opacity:0.4;cursor:default;}
+
+/* SUBJECT SELECT */
+.subject-screen{padding:1.5rem 1rem;}
+.subject-screen h2{font-size:22px;font-weight:700;margin-bottom:4px;}
+.subject-screen p{font-size:14px;color:#888;margin-bottom:1.5rem;}
+.subject-grid{display:flex;flex-direction:column;gap:12px;}
+.subject-card{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:16px;padding:1.2rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:1rem;}
+.subject-card:hover{border-color:#534AB7;transform:translateY(-2px);}
+.subject-icon{font-size:36px;width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.subject-info h3{font-size:17px;font-weight:700;margin-bottom:2px;}
+.subject-info p{font-size:13px;color:#888;}
+.leaderboard-btn{width:100%;padding:13px;border-radius:12px;border:1.5px solid #2e2e3e;background:transparent;color:#8B7FE8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:1rem;}
+
+/* INNER TABS */
+.nav-tabs{display:flex;gap:6px;margin-bottom:1.2rem;background:#1c1c24;padding:5px;border-radius:14px;}
+.nav-tab{flex:1;padding:9px 6px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:#888;font-family:inherit;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.nav-tab .tab-icon{font-size:18px;}
+.nav-tab.active{background:#2a2a36;color:#8B7FE8;box-shadow:0 1px 6px rgba(0,0,0,0.3);}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;color:#888;cursor:pointer;margin-bottom:1rem;background:none;border:none;font-family:inherit;padding:0;}
+.back-btn:hover{color:#f0f0f0;}
+
+/* CARDS */
+.card{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:16px;overflow:hidden;margin-bottom:1rem;}
+.card-img-emoji{width:100%;height:130px;display:flex;align-items:center;justify-content:center;font-size:48px;}
+.card-body{padding:1.1rem;}
+.card-tag{display:inline-block;font-size:11px;padding:2px 10px;border-radius:99px;font-weight:600;margin-bottom:8px;}
+.card-title{font-size:16px;font-weight:700;color:#f0f0f0;margin-bottom:8px;line-height:1.4;}
+.card-text{font-size:14px;color:#aaa;line-height:1.6;}
+.trick-box{background:#1e1b3a;border:0.5px solid #3d3580;border-radius:12px;padding:12px 14px;margin-top:10px;}
+.trick-label{font-size:11px;font-weight:700;color:#8B7FE8;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;}
+.trick-text{font-size:13px;color:#c5bfee;line-height:1.5;}
+.fact-box{background:#1f1800;border:0.5px solid #5a3800;border-radius:12px;padding:12px 14px;margin-top:10px;}
+.fact-label{font-size:11px;font-weight:700;color:#EF9F27;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;}
+.fact-text{font-size:13px;color:#d4a254;line-height:1.5;}
+.cheat-section{margin-bottom:1.2rem;}
+.cheat-header{font-size:13px;font-weight:700;color:#f0f0f0;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.cheat-item{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:flex-start;gap:10px;}
+.cheat-num{width:24px;height:24px;border-radius:50%;background:#534AB7;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.cheat-text{font-size:13px;color:#ddd;line-height:1.5;}
+.cheat-text strong{color:#8B7FE8;}
+
+/* QUIZ */
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;}
+.hearts{display:flex;gap:3px;}
+.heart{font-size:20px;}
+.score-pill{font-size:13px;font-weight:600;background:#1c1c24;border:0.5px solid #2e2e3e;padding:4px 14px;border-radius:99px;color:#aaa;}
+.streak-pill{font-size:13px;font-weight:600;padding:4px 14px;border-radius:99px;color:#8B7FE8;background:#1e1b3a;display:none;}
+.progress-bar-bg{background:#1c1c24;border-radius:99px;height:7px;margin-bottom:1rem;overflow:hidden;}
+.progress-bar-fill{height:7px;border-radius:99px;background:linear-gradient(90deg,#534AB7,#8B7FE8);transition:width 0.5s;}
+.q-card{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:16px;overflow:hidden;margin-bottom:1rem;}
+.q-img{width:100%;height:130px;object-fit:cover;}
+.q-img-placeholder{width:100%;height:130px;background:linear-gradient(135deg,#534AB7,#8B7FE8);display:flex;align-items:center;justify-content:center;font-size:44px;}
+.q-body{padding:1.1rem;}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.q-num{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.05em;}
+.type-badge{font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600;}
+.type-mc{background:#1a2a3a;color:#4A90D9;}
+.type-text{background:#2a1a00;color:#EF9F27;}
+.q-text{font-size:16px;font-weight:600;color:#f0f0f0;line-height:1.5;}
+.options-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
+.opt-btn{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:12px;padding:12px 14px;text-align:left;font-size:14px;color:#ddd;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:10px;font-family:inherit;width:100%;}
+.opt-btn:hover:not(:disabled){background:#252530;}
+.opt-btn.correct{background:#0f2010;border-color:#639922;color:#7DC947;}
+.opt-btn.wrong{background:#200f0f;border-color:#E24B4A;color:#F09595;}
+.opt-btn.reveal{background:#0f2010;border-color:#639922;color:#7DC947;}
+.opt-btn:disabled{cursor:default;}
+.opt-letter{width:28px;height:28px;border-radius:50%;background:#252530;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:#888;}
+.opt-btn.correct .opt-letter{background:#639922;color:white;}
+.opt-btn.wrong .opt-letter{background:#E24B4A;color:white;}
+.opt-btn.reveal .opt-letter{background:#639922;color:white;}
+.text-input-wrap{margin-bottom:1rem;}
+.text-input-wrap textarea{width:100%;border:0.5px solid #2e2e3e;border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;color:#f0f0f0;background:#1c1c24;resize:none;height:80px;outline:none;transition:border-color 0.15s;}
+.text-input-wrap textarea:focus{border-color:#534AB7;}
+.submit-btn{width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#534AB7,#7B6FD4);color:white;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:1rem;font-family:inherit;}
+.submit-btn:disabled{opacity:0.5;cursor:default;}
+
+/* COACH BOX - the in-game tutor */
+.coach-box{border-radius:14px;padding:14px 16px;margin-bottom:1rem;display:none;border:0.5px solid;}
+.coach-box.correct{background:#0f2010;border-color:#2a5010;}
+.coach-box.wrong{background:#1a0f00;border-color:#503010;}
+.coach-box.partial{background:#1a1200;border-color:#504000;}
+.coach-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.coach-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.coach-avatar.correct{background:#1a4020;}
+.coach-avatar.wrong{background:#3a1a00;}
+.coach-avatar.partial{background:#2a2000;}
+.coach-name{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.coach-name.correct{color:#7DC947;}
+.coach-name.wrong{color:#EF9F27;}
+.coach-name.partial{color:#EFC847;}
+.coach-msg{font-size:14px;line-height:1.6;color:#ddd;}
+.coach-answer{background:#252530;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:13px;color:#aaa;line-height:1.5;}
+.coach-answer strong{color:#8B7FE8;}
+.coach-trick{background:#1e1b3a;border-radius:10px;padding:10px 12px;margin-top:8px;font-size:13px;color:#c5bfee;line-height:1.5;}
+.coach-trick-label{font-size:10px;font-weight:700;color:#8B7FE8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+.keyword-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.kw-tag{font-size:11px;padding:2px 8px;border-radius:99px;background:#0f2010;color:#7DC947;font-weight:500;}
+
+.next-btn{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#534AB7,#7B6FD4);color:white;font-size:15px;font-weight:600;cursor:pointer;display:none;font-family:inherit;}
+
+/* RESULT */
+.result-card{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:16px;padding:2rem;text-align:center;}
+.result-emoji{font-size:56px;margin-bottom:1rem;}
+.result-title{font-size:22px;font-weight:700;margin-bottom:6px;color:#f0f0f0;}
+.result-score{font-size:44px;font-weight:700;background:linear-gradient(135deg,#534AB7,#8B7FE8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+.result-sub{font-size:14px;color:#888;margin-bottom:1.5rem;}
+.result-btns{display:flex;flex-direction:column;gap:8px;}
+.restart-btn{padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#534AB7,#7B6FD4);color:white;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
+.lb-view-btn{padding:12px;border-radius:12px;border:1.5px solid #2e2e3e;background:transparent;color:#8B7FE8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* LEADERBOARD */
+.lb-screen{padding:1rem;}
+.lb-title{font-size:20px;font-weight:700;margin-bottom:1.2rem;display:flex;align-items:center;gap:8px;}
+.lb-item{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.lb-rank{width:32px;height:32px;border-radius:50%;background:#252530;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#888;flex-shrink:0;}
+.lb-rank.gold{background:#3a2a00;color:#EFC847;}
+.lb-rank.silver{background:#252530;color:#aaa;}
+.lb-rank.bronze{background:#2a1500;color:#cd7f32;}
+.lb-info{flex:1;}
+.lb-name{font-size:15px;font-weight:600;color:#f0f0f0;}
+.lb-sub{font-size:12px;color:#666;}
+.lb-pts{font-size:16px;font-weight:700;color:#8B7FE8;}
+.lb-empty{text-align:center;padding:2rem;color:#555;font-size:14px;}
+.lb-filter{display:flex;gap:6px;margin-bottom:1rem;}
+.lb-filter-btn{padding:6px 14px;border-radius:99px;border:0.5px solid #2e2e3e;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.lb-filter-btn.active{background:#1e1b3a;color:#8B7FE8;border-color:#534AB7;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- NAME ENTRY SCREEN -->
+  <div id="screen-name" class="screen active">
+    <div class="name-screen">
+      <div style="font-size:56px">📚</div>
+      <h1>Study App</h1>
+      <p>Qatar History & Science — Grade 7<br>Enter your name to start</p>
+      <input class="name-input" id="name-input" type="text" placeholder="your name..." maxlength="20" oninput="checkName()"/>
+      <button class="start-btn" id="start-btn" onclick="goSubject()" disabled>let's go →</button>
+    </div>
+  </div>
+
+  <!-- SUBJECT SELECT SCREEN -->
+  <div id="screen-subject" class="screen">
+    <div class="subject-screen" id="subject-screen-inner">
+      <h2 id="subject-greeting">hey bro 👋</h2>
+      <p>pick a subject to study</p>
+      <div class="subject-grid">
+        <div class="subject-card" onclick="loadSubject('qatar')">
+          <div class="subject-icon" style="background:linear-gradient(135deg,#8B0000,#C0392B)">🇶🇦</div>
+          <div class="subject-info">
+            <h3>Qatar History</h3>
+            <p>Lesson 8 — National Security, Tourism, Trade</p>
+          </div>
+        </div>
+        <div class="subject-card" onclick="loadSubject('science')">
+          <div class="subject-icon" style="background:linear-gradient(135deg,#0a3a6b,#1a6ab7)">⚡</div>
+          <div class="subject-info">
+            <h3>Science</h3>
+            <p>Energy — Forms, Transfer, Conservation</p>
+          </div>
+        </div>
+      </div>
+      <button class="leaderboard-btn" onclick="showLeaderboard()">🏆 leaderboard</button>
+    </div>
+  </div>
+
+  <!-- STUDY SCREEN (tabs) -->
+  <div id="screen-study" class="screen">
+    <button class="back-btn" onclick="goSubject()">← back to subjects</button>
+    <div class="nav-tabs" id="study-tabs">
+      <button class="nav-tab active" onclick="showTab('quiz')"><span class="tab-icon">🎮</span>Quiz</button>
+      <button class="nav-tab" onclick="showTab('tips')"><span class="tab-icon">💡</span>Tips</button>
+      <button class="nav-tab" onclick="showTab('facts')"><span class="tab-icon">🤯</span>Fun Facts</button>
+      <button class="nav-tab" onclick="showTab('cheat')"><span class="tab-icon">📋</span>Cheatsheet</button>
+    </div>
+    <!-- quiz tab -->
+    <div id="tab-quiz">
+      <div id="game-view">
+        <div class="top-bar">
+          <div class="hearts" id="hearts"></div>
+          <div class="score-pill">⚡ <span id="score">0</span> pts</div>
+          <div class="streak-pill" id="streak-pill">🔥 <span id="streak">0</span></div>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress" style="width:0%"></div></div>
+        <div class="q-card">
+          <div id="q-img-wrap"></div>
+          <div class="q-body">
+            <div class="q-meta">
+              <div class="q-num" id="q-num">question 1</div>
+              <div id="type-badge-wrap"></div>
+            </div>
+            <div class="q-text" id="q-text"></div>
+          </div>
+        </div>
+        <div id="mc-section" class="options-grid"></div>
+        <div id="text-section" class="text-input-wrap" style="display:none">
+          <textarea id="user-answer" placeholder="type your answer... (Enter to submit)"></textarea>
+          <button class="submit-btn" id="submit-btn" onclick="submitText()">check answer ✓</button>
+        </div>
+        <div class="coach-box" id="coach-box">
+          <div class="coach-header">
+            <div class="coach-avatar" id="coach-avatar">🤖</div>
+            <span class="coach-name" id="coach-name">coach</span>
+          </div>
+          <div class="coach-msg" id="coach-msg"></div>
+          <div class="coach-answer" id="coach-answer" style="display:none"></div>
+          <div class="coach-trick" id="coach-trick" style="display:none"></div>
+          <div class="keyword-tags" id="keyword-tags"></div>
+        </div>
+        <button class="next-btn" id="next-btn">continue →</button>
+      </div>
+      <div id="result-view" style="display:none">
+        <div class="result-card">
+          <div class="result-emoji" id="r-emoji"></div>
+          <div class="result-title" id="r-title"></div>
+          <div class="result-score" id="r-score"></div>
+          <div class="result-sub" id="r-sub"></div>
+          <div class="result-btns">
+            <button class="restart-btn" onclick="restart()">🔄 play again</button>
+            <button class="lb-view-btn" onclick="showLeaderboard()">🏆 see leaderboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- tips tab -->
+    <div id="tab-tips" style="display:none"></div>
+    <!-- facts tab -->
+    <div id="tab-facts" style="display:none"></div>
+    <!-- cheat tab -->
+    <div id="tab-cheat" style="display:none"></div>
+  </div>
+
+  <!-- LEADERBOARD SCREEN -->
+  <div id="screen-lb" class="screen">
+    <div class="lb-screen">
+      <button class="back-btn" onclick="goSubject()">← back</button>
+      <div class="lb-title">🏆 Leaderboard</div>
+      <div class="lb-filter">
+        <button class="lb-filter-btn active" onclick="filterLB('all',this)">All</button>
+        <button class="lb-filter-btn" onclick="filterLB('qatar',this)">🇶🇦 Qatar</button>
+        <button class="lb-filter-btn" onclick="filterLB('science',this)">⚡ Science</button>
+      </div>
+      <div id="lb-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── STORAGE ───────────────────────────────────────────────────
+let leaderboard = JSON.parse(localStorage.getItem('studyapp_lb') || '[]');
+function saveLB(){ localStorage.setItem('studyapp_lb', JSON.stringify(leaderboard)); }
+function addScore(name, subject, score, total){
+  leaderboard.push({name, subject, score, total, date: Date.now()});
+  leaderboard.sort((a,b)=>b.score-a.score);
+  if(leaderboard.length>50) leaderboard=leaderboard.slice(0,50);
+  saveLB();
+}
+
+// ─── STATE ─────────────────────────────────────────────────────
+let playerName='', currentSubject='', currentQuestions=[];
+let qIdx=0, score=0, lives=3, streak=0, answered=false;
+const letters=['A','B','C','D'];
+
+// ─── SCREENS ───────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+function checkName(){
+  const v=document.getElementById('name-input').value.trim();
+  document.getElementById('start-btn').disabled=v.length<1;
+}
+function goSubject(){
+  showScreen('subject');
+  document.getElementById('subject-greeting').textContent=`hey ${playerName} 👋`;
+  showTab('quiz');
+}
+function goSubjectFromName(){
+  playerName=document.getElementById('name-input').value.trim();
+  goSubject();
+}
+document.getElementById('start-btn').onclick=()=>{
+  playerName=document.getElementById('name-input').value.trim();
+  goSubject();
+};
+document.getElementById('name-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&playerName.length>0) goSubject();
+});
+
+// ─── SUBJECT CONTENT ───────────────────────────────────────────
+const subjects = {
+  qatar: {
+    color:'#8B0000',
+    questions: [
+      {type:'mc',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Tamim_bin_Hamad_Al_Thani_%28cropped%29.jpg/440px-Tamim_bin_Hamad_Al_Thani_%28cropped%29.jpg',emoji:'👑',q:"Who is the Emir of Qatar?",opts:["Sheikh Hamad Al Thani","Sheikh Tamim bin Hamad Al Thani","Sheikh Mohammed Al Maktoum","Sheikh Khalifa Al Nahyan"],ans:1,exp:"Sheikh Tamim bin Hamad Al Thani is the Emir of Qatar.",trick:"Remember: Tamim = T, like the T in 'The Emir' 👑"},
+      {type:'text',emoji:'🛡️',q:"Name the 4 components of national security in Qatar.",keywords:["stability","democracy","global security","security agencies","alignment","development"],minMatch:3,exp:"1) Stability of political system 2) Democracy 3) Alignment with global security 4) Development of national security agencies.",trick:"Use 'SDAD' — Soldiers Don't Always Dance 😭"},
+      {type:'mc',emoji:'🛡️',q:"Which is NOT a component of national security?",opts:["Stability of the political system","Free education for all","Alignment with global security","Development of national security agencies"],ans:1,exp:"Free education is not listed. The 4 real components are stability, democracy, global security alignment, and developing security agencies.",trick:"If it sounds too nice (free stuff) it's probably not the answer 😂"},
+      {type:'mc',emoji:'⚔️',q:"What does the Ministry of Defense protect?",opts:["Citizens inside the country","Qatar's land, sea and air borders","The tourism industry","Trade and exports"],ans:1,exp:"The Ministry of Defense secures Qatar's land, sea and air borders.",trick:"Defense = ARMY = outside borders. Interior = POLICE = inside country 🪖👮"},
+      {type:'mc',img:'https://media.cntraveler.com/photos/5e0e5e26a1516d00088aed69/master/w_1600%2Cc_limit/Zekreet_GettyImages-1168782624.jpg',emoji:'🌿',q:"What is ecotourism?",opts:["Travelling for medical treatment","Visiting natural attractions to enjoy or study nature","Sports-related travel","Cultural and scientific visits"],ans:1,exp:"Ecotourism = visiting natural spots like Zekreet and Brouq Peninsula.",trick:"ECO = ecology = nature 🌿 easy one"},
+      {type:'text',emoji:'🏥',q:"What is medical tourism? Explain in your own words.",keywords:["travel","country","treatment","medical","abroad","healthcare","hospital"],minMatch:2,exp:"Medical tourism = travelling to another country for medical treatment.",trick:"Medical = hospital stuff. Tourism = travelling. Put them together = travel to get treatment abroad 🏥"},
+      {type:'mc',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/LNG_carrier_DUHAIL.jpg/1200px-LNG_carrier_DUHAIL.jpg',emoji:'⛽',q:"What is Qatar's main export by percentage?",opts:["Plastics","Fertilizers","Mineral fuel and mineral oil","Machinery"],ans:2,exp:"Mineral fuel and mineral oil = 90.94% of exports 💰",trick:"Qatar = oil country. When in doubt pick the oil answer ⛽"},
+      {type:'text',emoji:'👑',q:"Why is Sheikh Tamim a great leader according to the book?",keywords:["political","insight","leadership","crises","security","solidarity","immunity","respect"],minMatch:2,exp:"Political insight, wise leadership, overcame crises, strengthened immunity & solidarity, established external respect.",trick:"Keywords: political insight, crises, immunity, solidarity, respect — pick any 2 👑"},
+      {type:'mc',emoji:'🌱',q:"What percentage of exports are fertilizers?",opts:["2.98%","3.35%","10%","5.5%"],ans:0,exp:"Fertilizers = 2.98% of Qatar's exports.",trick:"2.98% — just under 3%. Remember: fertilizers are 3rd most important export 🌱"},
+      {type:'mc',emoji:'👮',q:"Which ministry has DIRECT contact with citizens?",opts:["Ministry of Defense","Ministry of Finance","Ministry of Interior","Ministry of Education"],ans:2,exp:"Ministry of Interior has direct contact with citizens.",trick:"Interior = inside = inside the community = citizens 👮"},
+      {type:'text',emoji:'🏛️',q:"What is the purpose of developing national security agencies?",keywords:["protect","internal","external","security","state","duties","carry"],minMatch:2,exp:"To protect the internal and external security of the state.",trick:"Protect inside + outside of Qatar = internal + external security 🛡️"},
+      {type:'mc',img:'https://media.cntraveler.com/photos/5e0e5e26a1516d00088aed69/master/w_1600%2Cc_limit/Zekreet_GettyImages-1168782624.jpg',emoji:'🏜️',q:"Which is an example of ecotourism in Qatar?",opts:["Qatar University","Football match","Zekreet and Brouq Peninsula","Hamad hospital"],ans:2,exp:"Zekreet and Brouq Peninsula are ecotourism spots.",trick:"Zekreet = nature = ecotourism. Remember it looks like Mars 🪐"},
+      {type:'text',emoji:'🎓',q:"What is cultural tourism? Give a Qatar example.",keywords:["cultural","scientific","knowledge","university","qatar","learning"],minMatch:2,exp:"Cultural tourism = visits for cultural & scientific knowledge, e.g. Qatar University.",trick:"Cultural = learning. Example = Qatar University 🎓"},
+      {type:'mc',emoji:'🌍',q:"How does alignment with global security work?",opts:["Qatar only focuses internally","Qatar is isolated from world security","Qatar both affects and is affected by global security","Qatar controls global security"],ans:2,exp:"It's a two-way relationship — Qatar both affects and is affected by global security positively and negatively.",trick:"Two-way street 🛣️ Qatar → World, World → Qatar"},
+      {type:'mc',emoji:'🏠',q:"What does the Ministry of Interior do?",opts:["Manages imports/exports","Achieves and preserves security with citizens","Develops tourism","Controls military borders"],ans:1,exp:"Ministry of Interior seeks to achieve and preserve security, having direct contact with citizens.",trick:"Interior = inside = community security = citizens 🏠"},
+    ],
+    tips: [
+      {emoji:'🛡️',bg:'linear-gradient(135deg,#2a1f6b,#4a3aa0)',tag:'National Security',tagBg:'#1e1b3a',tagColor:'#8B7FE8',title:'How to remember the 4 components',text:'',trick:"Use <strong>SDAD</strong>:<br><strong>S</strong>tability of political system<br><strong>D</strong>emocracy & citizen participation<br><strong>A</strong>lignment with global security<br><strong>D</strong>evelopment of security agencies<br><br>Say it: <em>\"Soldiers Don't Always Dance\"</em> 😭"},
+      {emoji:'⚔️ vs 👮',bg:'linear-gradient(135deg,#1a0a0a,#3a1515)',tag:'Ministries',tagBg:'#1a2a3a',tagColor:'#4A90D9',title:'Defense vs Interior — never mix them up',trick:"<strong>Ministry of Defense</strong> = ARMY 🪖 — borders, land, sea, air<br><br><strong>Ministry of Interior</strong> = POLICE 👮 — inside the country, citizens"},
+      {emoji:'🌍',bg:'linear-gradient(135deg,#0a1f0a,#1a4a1a)',tag:'Tourism',tagBg:'#0f2010',tagColor:'#7DC947',title:'3 types of tourism — easy to remember',trick:"<strong>ECO</strong> = nature 🌿 (Zekreet)<br><strong>MEDICAL</strong> = hospitals 🏥 (travel for treatment)<br><strong>CULTURAL</strong> = learning 🎓 (Qatar University)<br><br>Think: <em>\"Nature, Needles, Knowledge\"</em>"},
+      {emoji:'⛽',bg:'linear-gradient(135deg,#1f0f00,#4a2a00)',tag:'Trade',tagBg:'#201500',tagColor:'#EF9F27',title:"Qatar's exports — remember the big number",trick:"Mineral fuel = <strong>90.94%</strong><br>Plastics = 3.35%<br>Fertilizers = 2.98%<br><br>Think: <em>\"Qatar = basically just oil\"</em> ⛽"},
+    ],
+    facts: [
+      {emoji:'👑',bg:'linear-gradient(135deg,#2a0a4a,#5a1a8a)',tag:'About the Emir',tagBg:'#1e1b3a',tagColor:'#8B7FE8',title:'Sheikh Tamim is one of the youngest rulers in the world',text:'He became Emir in 2013 when he was only 33 years old.',fact:'Sheikh Tamim actually played football for Qatar\'s national team before becoming Emir 🏃‍♂️⚽'},
+      {emoji:'⛽',bg:'linear-gradient(135deg,#0a1a2a,#1a3a5a)',tag:'Economy',tagBg:'#1a2a3a',tagColor:'#4A90D9',title:'Qatar has one of the highest GDPs per capita in the world',text:'All because of mineral fuel and gas. Qatar sits on one of the largest natural gas reserves on the planet.',fact:"Qatar's North Field is the world's largest single natural gas field 🌊"},
+      {emoji:'🏜️',bg:'linear-gradient(135deg,#0a1f0a,#1a4a1a)',tag:'Ecotourism',tagBg:'#0f2010',tagColor:'#7DC947',title:'Zekreet looks like another planet 🪐',text:'The Brouq Peninsula has crazy white limestone formations that look like Mars.',fact:'It looks so alien that film crews use it as a stand-in for desert planets 🎬'},
+      {emoji:'🏥',bg:'linear-gradient(135deg,#2a0a0a,#5a1a1a)',tag:'Medical Tourism',tagBg:'#200f0f',tagColor:'#F09595',title:'Qatar is becoming a medical hub in the region',text:'Qatar has invested massively in Hamad Medical Corporation and Sidra Medicine.',fact:'Sidra Medicine is one of the most advanced children\'s hospitals in the Middle East 👶'},
+    ],
+    cheat: [
+      {header:'🛡️ 4 Components of National Security',items:[
+        {num:'1',text:'<strong>Stability</strong> of the political system in the state'},
+        {num:'2',text:'<strong>Democracy</strong> — citizens participate, social justice, equal opportunities'},
+        {num:'3',text:'<strong>Alignment with global security</strong> — affects and is affected by it +/-'},
+        {num:'4',text:'<strong>Development of national security agencies</strong> — protect internal & external security'},
+      ]},
+      {header:'⚔️👮 The Two Ministries',items:[
+        {num:'M',numBg:'#A32D2D',text:'<strong>Ministry of Defense</strong> — land, sea & air borders, military service = ARMY 🪖'},
+        {num:'I',numBg:'#185FA5',text:'<strong>Ministry of Interior</strong> — direct contact with citizens, preserve security = POLICE 👮'},
+      ]},
+      {header:'🌍 3 Types of Tourism',items:[
+        {num:'E',numBg:'#3B7A3B',text:'<strong>Ecotourism</strong> — natural attractions (Zekreet, Brouq Peninsula)'},
+        {num:'M',numBg:'#854F0B',text:'<strong>Medical Tourism</strong> — travelling abroad for medical treatment'},
+        {num:'C',numBg:'#534AB7',text:'<strong>Cultural Tourism</strong> — cultural & scientific knowledge (Qatar University)'},
+      ]},
+      {header:"⛽ Qatar's Main Exports (2022)",items:[
+        {num:'1',text:'<strong>Mineral fuel & mineral oil</strong> — 90.94% 🔥'},
+        {num:'2',text:'<strong>Plastics</strong> — 3.35%'},
+        {num:'3',text:'<strong>Fertilizers</strong> — 2.98%'},
+      ]},
+    ]
+  },
+  science: {
+    color:'#0a3a6b',
+    questions: [
+      {type:'mc',emoji:'⚡',q:"What is energy?",opts:["The weight of an object","The ability to do work or cause change","The speed of movement","The temperature of a material"],ans:1,exp:"Energy is the ability to do work or cause change. It can make things move, produce heat, or create light.",trick:"Energy = ability to DO something. If nothing's happening, no energy is being used 💡"},
+      {type:'mc',emoji:'🚲',q:"From these options, where is energy actively being USED?",opts:["A bag resting on a chair","A locked window","A bicycle moving forward","A book on a shelf"],ans:2,exp:"The bicycle moving forward is using kinetic energy. The other options are not moving so they are not actively using energy.",trick:"Moving = energy being used. Sitting still = stored energy (potential) or nothing 🚲"},
+      {type:'mc',emoji:'📏',q:"What unit is used to measure energy?",opts:["Newton (N)","Watt (W)","Joule (J)","Kilogram (kg)"],ans:2,exp:"The Joule (J) is the unit used to measure energy.",trick:"J for Joule, J for James Prescott Joule who discovered it. Just remember J = energy 📏"},
+      {type:'text',emoji:'🏃',q:"Describe what kinetic energy is in your own words.",keywords:["moving","movement","motion","object","energy"],minMatch:2,exp:"Kinetic energy is the energy an object has because it is moving. Anything that moves has kinetic energy — a car, a ball, a person.",trick:"Kinetic = motion. If it's MOVING it has kinetic energy 🏃"},
+      {type:'mc',emoji:'📚',q:"What type of energy does a book on a shelf have?",opts:["Kinetic energy","Sound energy","Gravitational potential energy","Chemical energy"],ans:2,exp:"A book on a shelf has gravitational potential energy because it is raised above the ground. If it falls, this becomes kinetic energy.",trick:"Height above ground = gravitational potential energy. The higher it is, the more it has 📚"},
+      {type:'mc',emoji:'🌞',q:"Which is a renewable energy source?",opts:["Coal","Natural gas","Oil","Solar energy"],ans:3,exp:"Solar energy is renewable because it comes from the Sun and will not run out. Other renewables include wind, hydro, geothermal, and biomass.",trick:"Renewable = naturally replaced. Sun never runs out (for a few billion years lol) ☀️"},
+      {type:'text',emoji:'🔥',q:"What are the 3 ways heat energy is transferred? Name all 3.",keywords:["conduction","convection","radiation"],minMatch:3,exp:"The 3 ways heat transfers are: Conduction (through direct contact in solids), Convection (through movement of liquids/gases), Radiation (through waves, no medium needed).",trick:"Con-Con-Rad: Conduction, Convection, Radiation 🔥"},
+      {type:'mc',emoji:'🥄',q:"A metal spoon gets hot in hot soup. What type of heat transfer is this?",opts:["Convection","Radiation","Conduction","Evaporation"],ans:2,exp:"This is conduction — heat transfer through direct contact in solids. The spoon touches the hot liquid and particles vibrate and pass energy along the spoon.",trick:"Conduction = CONTACT. Spoon touches soup = contact = conduction 🥄"},
+      {type:'mc',emoji:'☀️',q:"Heat from the Sun reaching Earth through space is an example of?",opts:["Conduction","Convection","Radiation","Absorption"],ans:2,exp:"This is radiation — heat transfer through waves that doesn't need a medium. Space is a vacuum so only radiation can travel through it.",trick:"Space = no particles = can't be conduction or convection. Must be RADIATION ☀️"},
+      {type:'text',emoji:'💡',q:"Explain why a light bulb produces both light AND heat.",keywords:["electrical","electricity","energy","light","heat","wasted","transform"],minMatch:2,exp:"Electrical energy changes into light energy (useful) but some is also wasted as heat/thermal energy. Not all input energy becomes useful output.",trick:"Bulb: electrical → light (useful) + heat (wasted). Wasted energy is normal! 💡"},
+      {type:'mc',emoji:'🔋',q:"What is the energy transformation in a flashlight?",opts:["Light → Chemical → Electrical","Chemical → Electrical → Light","Electrical → Chemical → Sound","Thermal → Light → Electrical"],ans:1,exp:"Chemical energy in battery → Electrical energy → Light energy (+ some wasted heat).",trick:"Battery has CHEMICAL energy. That becomes ELECTRICAL. Bulb makes LIGHT. Chem → Elec → Light 🔋"},
+      {type:'text',emoji:'⚖️',q:"State the Law of Conservation of Energy.",keywords:["created","destroyed","transform","form","conserved","neither"],minMatch:2,exp:"Energy cannot be created or destroyed — it can only be transformed from one form to another. The total amount of energy always stays the same.",trick:"Energy is never lost, just TRANSFORMED. Think: energy is immortal 👻"},
+      {type:'mc',emoji:'🧲',q:"What is a conductor?",opts:["A material that blocks heat","A material that allows heat/electricity to pass through easily","A material that stores energy","A material that reflects light"],ans:1,exp:"A conductor allows heat or electricity to pass through it easily. Examples: copper, aluminium, most metals.",trick:"Conductor = lets energy THROUGH. Insulator = BLOCKS energy. Metal = conductor 🔌"},
+      {type:'mc',emoji:'🌡️',q:"A device uses 20J input and produces 12J useful energy. How much is wasted?",opts:["12J","32J","8J","20J"],ans:2,exp:"Wasted energy = Input − Useful output = 20J − 12J = 8J. The wasted energy is usually lost as heat or sound.",trick:"Wasted = Total IN minus Useful OUT. 20 - 12 = 8J ♻️"},
+      {type:'text',emoji:'🌬️',q:"Why is wind energy considered sustainable?",keywords:["wind","run out","renewable","natural","gases","pollution","fossil"],minMatch:2,exp:"Wind energy is sustainable because wind is naturally available and can be used repeatedly. It doesn't run out and doesn't produce harmful gases like fossil fuels.",trick:"Sustainable = won't run out + no pollution. Wind = free forever + clean 🌬️"},
+    ],
+    tips: [
+      {emoji:'⚡',bg:'linear-gradient(135deg,#0a1a3a,#1a3a6a)',tag:'Energy Basics',tagBg:'#1a2a3a',tagColor:'#4A90D9',title:'How to remember the forms of energy',trick:"<strong>K-G-E-C-T-L-S-El</strong><br>Kinetic, Gravitational PE, Elastic PE, Chemical, Thermal, Light, Sound, Electrical<br><br>Think: <em>\"Kings Get Every Crown Through Legendary Skill Every day\"</em> 👑"},
+      {emoji:'🔥',bg:'linear-gradient(135deg,#3a0a00,#6a1a00)',tag:'Heat Transfer',tagBg:'#2a1000',tagColor:'#EF9F27',title:'Conduction vs Convection vs Radiation',trick:"<strong>Conduction</strong> = CONTACT (solids) 🥄<br><strong>Convection</strong> = CURRENTS (liquids/gases) 🌊<br><strong>Radiation</strong> = RAYS (no medium needed) ☀️<br><br>Think: <em>Con-Con-Rad — CCR</em>"},
+      {emoji:'🔋',bg:'linear-gradient(135deg,#0a2a0a,#1a5a1a)',tag:'Energy Transformation',tagBg:'#0f2010',tagColor:'#7DC947',title:'Flashlight energy chain — classic exam question',trick:"<strong>Chemical → Electrical → Light (+Heat wasted)</strong><br><br>Battery = Chemical<br>Wire = Electrical<br>Bulb = Light<br><br>Most energy transformations follow this pattern 🔋"},
+      {emoji:'♻️',bg:'linear-gradient(135deg,#1a1a00,#3a3a00)',tag:'Conservation',tagBg:'#201f00',tagColor:'#EFC847',title:'Law of Conservation — easy to remember',trick:"Energy is <strong>NEVER created or destroyed</strong> — it just changes form.<br><br>Think: <em>\"Energy is immortal, it just transforms\"</em> 👻<br><br>Total energy IN always = Total energy OUT"},
+    ],
+    facts: [
+      {emoji:'⚡',bg:'linear-gradient(135deg,#0a1a3a,#1a3a6a)',tag:'Energy',tagBg:'#1a2a3a',tagColor:'#4A90D9',title:'The Sun produces more energy in 1 second than humans have used in all of history',text:'Solar energy is mind-blowing in scale. One hour of sunlight could power the whole world for a year.',fact:'A single lightning bolt contains about 1 billion volts of electricity ⚡'},
+      {emoji:'🥄',bg:'linear-gradient(135deg,#2a0a00,#5a1a00)',tag:'Conduction',tagBg:'#200f0f',tagColor:'#F09595',title:'Why metal feels cold but wood feels warm — same temperature!',text:'Metal conducts heat away from your hand faster, so it feels cold. Wood is an insulator so it feels warmer.',fact:'Diamond is actually the best conductor of heat — better than any metal 💎'},
+      {emoji:'🔋',bg:'linear-gradient(135deg,#0a2a0a,#1a5a1a)',tag:'Batteries',tagBg:'#0f2010',tagColor:'#7DC947',title:'A battery doesn\'t store electricity — it stores chemical energy',text:'When you use a battery, chemical reactions happen that release electrical energy. That\'s the transformation!',fact:'The first battery was invented in 1800 by Alessandro Volta — that\'s why voltage is named after him ⚡'},
+      {emoji:'♻️',bg:'linear-gradient(135deg,#1a1a00,#3a3a00)',tag:'Conservation',tagBg:'#201f00',tagColor:'#EFC847',title:'Energy efficiency — nothing is 100% efficient',text:'Every device wastes SOME energy, usually as heat. Even the best machines waste a little.',fact:'A regular incandescent bulb is only about 5% efficient — 95% of energy is wasted as heat 😭 LED bulbs are 90%+ efficient 💡'},
+    ],
+    cheat: [
+      {header:'⚡ Forms of Energy',items:[
+        {num:'K',text:'<strong>Kinetic</strong> — energy of movement. Example: moving car'},
+        {num:'G',text:'<strong>Gravitational PE</strong> — energy due to height. Example: book on shelf'},
+        {num:'E',text:'<strong>Elastic PE</strong> — energy in stretched/compressed objects. Example: spring'},
+        {num:'C',text:'<strong>Chemical</strong> — energy stored in substances. Example: food, battery'},
+        {num:'T',text:'<strong>Thermal</strong> — heat energy. Example: hot water'},
+        {num:'L',text:'<strong>Light</strong> — energy we can see. Example: Sun, torch'},
+        {num:'S',text:'<strong>Sound</strong> — energy from vibrations. Example: speaker'},
+        {num:'El',text:'<strong>Electrical</strong> — energy from moving charges. Example: electricity in wire'},
+      ]},
+      {header:'🔥 3 Ways Heat Transfers',items:[
+        {num:'Cd',numBg:'#A32D2D',text:'<strong>Conduction</strong> — through CONTACT in solids. Example: spoon in hot soup'},
+        {num:'Cv',numBg:'#185FA5',text:'<strong>Convection</strong> — CURRENTS in liquids/gases. Example: boiling water'},
+        {num:'R',numBg:'#534AB7',text:'<strong>Radiation</strong> — WAVES, no medium needed. Example: Sun → Earth'},
+      ]},
+      {header:'♻️ Key Laws & Formulas',items:[
+        {num:'!',text:'<strong>Law of Conservation:</strong> Energy cannot be created or destroyed, only transformed'},
+        {num:'=',text:'<strong>Wasted energy</strong> = Total input − Useful output'},
+        {num:'%',text:'<strong>Efficiency</strong> = (Useful energy ÷ Total input) × 100'},
+      ]},
+      {header:'🔌 Conductors vs Insulators',items:[
+        {num:'C',numBg:'#A32D2D',text:'<strong>Conductor</strong> — allows heat/electricity through. Examples: metals (copper, aluminium)'},
+        {num:'I',numBg:'#3B7A3B',text:'<strong>Insulator</strong> — blocks heat/electricity. Examples: plastic, rubber, wood'},
+      ]},
+    ]
+  }
+};
+
+// ─── LOAD SUBJECT ──────────────────────────────────────────────
+function loadSubject(subj){
+  currentSubject=subj;
+  currentQuestions=subjects[subj].questions;
+  showScreen('study');
+  showTab('quiz');
+  resetQuiz();
+}
+
+// ─── TABS ──────────────────────────────────────────────────────
+function showTab(tab){
+  ['quiz','tips','facts','cheat'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach((el,i)=>{
+    el.classList.toggle('active',['quiz','tips','facts','cheat'][i]===tab);
+  });
+  if(tab==='tips') renderTips();
+  if(tab==='facts') renderFacts();
+  if(tab==='cheat') renderCheat();
+}
+
+function renderTips(){
+  const c=subjects[currentSubject];
+  document.getElementById('tab-tips').innerHTML=c.tips.map(t=>`
+    <div class="card">
+      <div class="card-img-emoji" style="background:${t.bg}">${t.emoji}</div>
+      <div class="card-body">
+        <span class="card-tag" style="background:${t.tagBg};color:${t.tagColor}">${t.tag}</span>
+        <div class="card-title">${t.title}</div>
+        ${t.text?`<div class="card-text">${t.text}</div>`:''}
+        <div class="trick-box"><div class="trick-label">🧠 Memory Trick</div><div class="trick-text">${t.trick}</div></div>
+      </div>
+    </div>`).join('');
+}
+function renderFacts(){
+  const c=subjects[currentSubject];
+  document.getElementById('tab-facts').innerHTML=c.facts.map(f=>`
+    <div class="card">
+      <div class="card-img-emoji" style="background:${f.bg}">${f.emoji}</div>
+      <div class="card-body">
+        <span class="card-tag" style="background:${f.tagBg};color:${f.tagColor}">${f.tag}</span>
+        <div class="card-title">${f.title}</div>
+        <div class="card-text">${f.text}</div>
+        <div class="fact-box"><div class="fact-label">🤯 Wild fact</div><div class="fact-text">${f.fact}</div></div>
+      </div>
+    </div>`).join('');
+}
+function renderCheat(){
+  const c=subjects[currentSubject];
+  document.getElementById('tab-cheat').innerHTML=c.cheat.map(s=>`
+    <div class="cheat-section">
+      <div class="cheat-header">${s.header}</div>
+      ${s.items.map(i=>`<div class="cheat-item"><div class="cheat-num" style="${i.numBg?'background:'+i.numBg:''}">${i.num}</div><div class="cheat-text">${i.text}</div></div>`).join('')}
+    </div>`).join('');
+}
+
+// ─── QUIZ ENGINE ───────────────────────────────────────────────
+function resetQuiz(){
+  qIdx=0;score=0;lives=3;streak=0;answered=false;
+  document.getElementById('game-view').style.display='block';
+  document.getElementById('result-view').style.display='none';
+  renderQ();
+}
+function restart(){ resetQuiz(); }
+
+function renderHearts(){
+  const h=document.getElementById('hearts');h.innerHTML='';
+  for(let i=0;i<3;i++){const s=document.createElement('span');s.className='heart';s.textContent=i<lives?'❤️':'🖤';h.appendChild(s);}
+}
+
+function renderQ(){
+  if(qIdx>=currentQuestions.length||lives<=0){showResult();return;}
+  const q=currentQuestions[qIdx];
+  document.getElementById('q-num').textContent=`question ${qIdx+1} of ${currentQuestions.length}`;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('progress').style.width=((qIdx/currentQuestions.length)*100)+'%';
+  document.getElementById('score').textContent=score;
+  const sp=document.getElementById('streak-pill');
+  if(streak>=2){sp.style.display='flex';document.getElementById('streak').textContent=streak+'🔥';}else{sp.style.display='none';}
+  renderHearts();
+  const imgWrap=document.getElementById('q-img-wrap');
+  if(q.img){imgWrap.innerHTML=`<img class="q-img" src="${q.img}" onerror="this.parentElement.innerHTML='<div class=\\'q-img-placeholder\\'>${q.emoji||'📚'}</div>'" alt=""/>`;}
+  else{imgWrap.innerHTML=`<div class="q-img-placeholder">${q.emoji||'📚'}</div>`;}
+  document.getElementById('type-badge-wrap').innerHTML=q.type==='mc'?'<span class="type-badge type-mc">multiple choice</span>':'<span class="type-badge type-text">✍️ type answer</span>';
+  const mc=document.getElementById('mc-section'),tx=document.getElementById('text-section'),ta=document.getElementById('user-answer'),sb=document.getElementById('submit-btn');
+  if(q.type==='mc'){
+    mc.style.display='flex';tx.style.display='none';mc.innerHTML='';
+    q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt-btn';b.innerHTML=`<span class="opt-letter">${letters[i]}</span>${o}`;b.onclick=()=>chooseMC(i);mc.appendChild(b);});
+  }else{mc.style.display='none';tx.style.display='block';ta.value='';ta.disabled=false;sb.disabled=false;}
+  hideCoach();
+  document.getElementById('next-btn').style.display='none';
+  answered=false;
+}
+
+function hideCoach(){document.getElementById('coach-box').style.display='none';}
+
+function showCoach(type, msg, answerText, trickText, matchedKW){
+  const box=document.getElementById('coach-box');
+  const av=document.getElementById('coach-avatar');
+  const nm=document.getElementById('coach-name');
+  const msgEl=document.getElementById('coach-msg');
+  const ansEl=document.getElementById('coach-answer');
+  const trEl=document.getElementById('coach-trick');
+  const kwEl=document.getElementById('keyword-tags');
+  box.className='coach-box '+type;
+  av.className='coach-avatar '+type;
+  nm.className='coach-name '+type;
+  if(type==='correct'){av.textContent='🤙';nm.textContent='coach';}
+  else if(type==='wrong'){av.textContent='😤';nm.textContent='coach';}
+  else{av.textContent='🤔';nm.textContent='coach';}
+  msgEl.innerHTML=msg;
+  if(answerText){ansEl.innerHTML=`<strong>correct answer:</strong><br>${answerText}`;ansEl.style.display='block';}else{ansEl.style.display='none';}
+  if(trickText){trEl.innerHTML=`<div class="coach-trick-label">🧠 how to remember</div>${trickText}`;trEl.style.display='block';}else{trEl.style.display='none';}
+  kwEl.innerHTML=matchedKW&&matchedKW.length>0?matchedKW.map(k=>`<span class="kw-tag">✓ ${k}</span>`).join(''):'';
+  box.style.display='block';
+}
+
+function chooseMC(i){
+  if(answered)return;answered=true;
+  const q=currentQuestions[qIdx];
+  const btns=document.querySelectorAll('.opt-btn');
+  btns.forEach(b=>b.disabled=true);
+  if(i===q.ans){
+    btns[i].classList.add('correct');
+    score+=streak>=2?20:10;streak++;
+    showCoach('correct',`yes bro! you got it 🔥`,null,null,null);
+  }else{
+    btns[i].classList.add('wrong');btns[q.ans].classList.add('reveal');lives--;streak=0;
+    showCoach('wrong',`nah that's wrong. you picked <strong>${q.opts[i]}</strong> but the answer is <strong>${q.opts[q.ans]}</strong>`,q.exp,q.trick||null,null);
+  }
+  document.getElementById('score').textContent=score;renderHearts();
+  const sp=document.getElementById('streak-pill');
+  if(streak>=2){sp.style.display='flex';document.getElementById('streak').textContent=streak+'🔥';}else{sp.style.display='none';}
+  if(lives<=0){setTimeout(showResult,1600);}else{document.getElementById('next-btn').style.display='block';}
+}
+
+function submitText(){
+  if(answered)return;
+  const q=currentQuestions[qIdx],val=document.getElementById('user-answer').value.toLowerCase().trim();
+  if(!val)return;answered=true;
+  document.getElementById('user-answer').disabled=true;document.getElementById('submit-btn').disabled=true;
+  const matched=q.keywords.filter(kw=>val.includes(kw.toLowerCase())),ratio=matched.length/q.minMatch;
+  if(ratio>=1){
+    score+=streak>=2?20:10;streak++;
+    showCoach('correct',`nice bro! you nailed it 🎯`,null,null,matched);
+  }else if(ratio>=0.5){
+    score+=5;streak=0;
+    showCoach('partial',`almost there bro 🤔 you got some of it but missing key words`,q.exp,q.trick||null,matched);
+  }else{
+    lives--;streak=0;
+    showCoach('wrong',`nah bro that's not quite right 😤 here's what you should've said:`,q.exp,q.trick||null,[]);
+  }
+  document.getElementById('score').textContent=score;renderHearts();
+  const sp=document.getElementById('streak-pill');
+  if(streak>=2){sp.style.display='flex';document.getElementById('streak').textContent=streak+'🔥';}else{sp.style.display='none';}
+  if(lives<=0){setTimeout(showResult,1600);}else{document.getElementById('next-btn').style.display='block';}
+}
+
+document.getElementById('next-btn').onclick=()=>{qIdx++;renderQ();};
+document.getElementById('user-answer').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!answered)submitText();}});
+
+function showResult(){
+  addScore(playerName, currentSubject, score, currentQuestions.length*10);
+  document.getElementById('game-view').style.display='none';document.getElementById('result-view').style.display='block';
+  const pct=Math.round((score/(currentQuestions.length*10))*100);
+  let emoji,title,sub;
+  if(lives<=0){emoji='💀';title=`${playerName} ran out of hearts 😭`;sub=`${score} pts before dying. check the tips tab and go again`;}
+  else if(pct>=90){emoji='🏆';title="you actually cooked!!";sub="exam's gonna be easy for you fr 🔥";}
+  else if(pct>=70){emoji='😤';title="pretty solid ngl";sub="check the cheatsheet and run it back";}
+  else if(pct>=50){emoji='😬';title="mid performance bro";sub="go check the tips tab then try again";}
+  else{emoji='💀';title="bro please study";sub="hit the cheatsheet tab first then come back";}
+  document.getElementById('r-emoji').textContent=emoji;
+  document.getElementById('r-title').textContent=title;
+  document.getElementById('r-score').textContent=score+' pts';
+  document.getElementById('r-sub').textContent=sub;
+}
+
+// ─── LEADERBOARD ───────────────────────────────────────────────
+let lbFilter='all';
+function showLeaderboard(){showScreen('lb');renderLB();}
+function filterLB(f,btn){
+  lbFilter=f;
+  document.querySelectorAll('.lb-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLB();
+}
+function renderLB(){
+  let data=leaderboard;
+  if(lbFilter!=='all') data=data.filter(e=>e.subject===lbFilter);
+  const el=document.getElementById('lb-list');
+  if(data.length===0){el.innerHTML='<div class="lb-empty">no scores yet 👀<br>be the first to play!</div>';return;}
+  el.innerHTML=data.slice(0,20).map((e,i)=>{
+    const medal=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const icon=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+    const subLabel=e.subject==='qatar'?'🇶🇦 Qatar History':e.subject==='science'?'⚡ Science':e.subject;
+    return`<div class="lb-item">
+      <div class="lb-rank ${medal}">${icon}</div>
+      <div class="lb-info"><div class="lb-name">${e.name}</div><div class="lb-sub">${subLabel}</div></div>
+      <div class="lb-pts">${e.score} pts</div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
