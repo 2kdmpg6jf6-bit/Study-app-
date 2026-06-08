@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Study App 📚</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f13;color:#f0f0f0;min-height:100vh;}
+#app{max-width:640px;margin:0 auto;padding:1rem;}
+.screen{display:none;}
+.screen.active{display:block;}
+.name-screen{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem;padding:2rem;}
+.name-screen h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,#534AB7,#8B7FE8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;}
+.name-screen p{font-size:15px;color:#888;text-align:center;}
+.name-input{width:100%;max-width:340px;padding:14px 18px;border-radius:14px;border:1.5px solid #2e2e3e;background:#1c1c24;color:#f0f0f0;font-size:17px;font-family:inherit;outline:none;text-align:center;}
+.name-input:focus{border-color:#534AB7;}
+.start-btn{width:100%;max-width:340px;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,#534AB7,#7B6FD4);color:white;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;}
+.start-btn:disabled{opacity:0.4;cursor:default;}
+.subject-screen{padding:1.5rem 1rem;}
+.subject-screen h2{font-size:22px;font-weight:700;margin-bottom:4px;}
+.subject-screen p{font-size:14px;color:#888;margin-bottom:1.5rem;}
+.subject-grid{display:flex;flex-direction:column;gap:12px;}
+.subject-card{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:16px;padding:1.2rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:1rem;}
+.subject-card:hover{border-color:#534AB7;transform:translateY(-2px);}
+.subject-icon{font-size:36px;width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.subject-info h3{font-size:17px;font-weight:700;margin-bottom:2px;}
+.subject-info p{font-size:13px;color:#888;}
+.leaderboard-btn{width:100%;padding:13px;border-radius:12px;border:1.5px solid #2e2e3e;background:transparent;color:#8B7FE8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:1rem;}
+.nav-tabs{display:flex;gap:6px;margin-bottom:1.2rem;background:#1c1c24;padding:5px;border-radius:14px;}
+.nav-tab{flex:1;padding:9px 4px;border:none;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#888;font-family:inherit;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.nav-tab .tab-icon{font-size:16px;}
+.nav-tab.active{background:#2a2a36;color:#8B7FE8;box-shadow:0 1px 6px rgba(0,0,0,0.3);}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;color:#888;cursor:pointer;margin-bottom:1rem;background:none;border:none;font-family:inherit;padding:0;}
+.back-btn:hover{color:#f0f0f0;}
+.card{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:16px;overflow:hidden;margin-bottom:1rem;}
+.card-img-emoji{width:100%;height:120px;display:flex;align-items:center;justify-content:center;font-size:44px;}
+.card-body{padding:1.1rem;}
+.card-tag{display:inline-block;font-size:11px;padding:2px 10px;border-radius:99px;font-weight:600;margin-bottom:8px;}
+.card-title{font-size:16px;font-weight:700;color:#f0f0f0;margin-bottom:6px;line-height:1.4;}
+.card-title-ar{font-size:18px;font-weight:700;color:#f0f0f0;margin-bottom:4px;line-height:1.6;direction:rtl;text-align:right;}
+.card-title-en{font-size:13px;color:#8B7FE8;margin-bottom:8px;}
+.card-text{font-size:14px;color:#aaa;line-height:1.6;}
+.trick-box{background:#1e1b3a;border:0.5px solid #3d3580;border-radius:12px;padding:12px 14px;margin-top:10px;}
+.trick-label{font-size:11px;font-weight:700;color:#8B7FE8;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;}
+.trick-text{font-size:13px;color:#c5bfee;line-height:1.5;}
+.fact-box{background:#1f1800;border:0.5px solid #5a3800;border-radius:12px;padding:12px 14px;margin-top:10px;}
+.fact-label{font-size:11px;font-weight:700;color:#EF9F27;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;}
+.fact-text{font-size:13px;color:#d4a254;line-height:1.5;}
+.cheat-section{margin-bottom:1.2rem;}
+.cheat-header{font-size:13px;font-weight:700;color:#f0f0f0;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.cheat-item{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:flex-start;gap:10px;}
+.cheat-num{width:28px;height:28px;border-radius:50%;background:#534AB7;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.cheat-text{font-size:13px;color:#ddd;line-height:1.5;}
+.cheat-text strong{color:#8B7FE8;}
+.cheat-ar{font-size:16px;direction:rtl;color:#f0f0f0;margin-bottom:2px;}
+.cheat-en{font-size:12px;color:#888;}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;}
+.hearts{display:flex;gap:3px;}
+.heart{font-size:20px;}
+.score-pill{font-size:13px;font-weight:600;background:#1c1c24;border:0.5px solid #2e2e3e;padding:4px 14px;border-radius:99px;color:#aaa;}
+.streak-pill{font-size:13px;font-weight:600;padding:4px 14px;border-radius:99px;color:#8B7FE8;background:#1e1b3a;display:none;}
+.progress-bar-bg{background:#1c1c24;border-radius:99px;height:7px;margin-bottom:1rem;overflow:hidden;}
+.progress-bar-fill{height:7px;border-radius:99px;background:linear-gradient(90deg,#534AB7,#8B7FE8);transition:width 0.5s;}
+.q-card{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:16px;overflow:hidden;margin-bottom:1rem;}
+.q-img-placeholder{width:100%;height:120px;background:linear-gradient(135deg,#534AB7,#8B7FE8);display:flex;align-items:center;justify-content:center;font-size:44px;}
+.q-body{padding:1.1rem;}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.q-num{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.05em;}
+.type-badge{font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600;}
+.type-mc{background:#1a2a3a;color:#4A90D9;}
+.type-text{background:#2a1a00;color:#EF9F27;}
+.q-text-ar{font-size:18px;font-weight:700;color:#f0f0f0;line-height:1.7;direction:rtl;text-align:right;margin-bottom:6px;}
+.q-text-en{font-size:13px;color:#8B7FE8;margin-bottom:4px;line-height:1.5;}
+.q-text{font-size:16px;font-weight:600;color:#f0f0f0;line-height:1.5;}
+.options-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
+.opt-btn{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:12px;padding:12px 14px;text-align:left;font-size:14px;color:#ddd;cursor:pointer;transition:all 0.15s;display:flex;align-items:flex-start;gap:10px;font-family:inherit;width:100%;}
+.opt-btn:hover:not(:disabled){background:#252530;}
+.opt-btn.correct{background:#0f2010;border-color:#639922;color:#7DC947;}
+.opt-btn.wrong{background:#200f0f;border-color:#E24B4A;color:#F09595;}
+.opt-btn.reveal{background:#0f2010;border-color:#639922;color:#7DC947;}
+.opt-btn:disabled{cursor:default;}
+.opt-letter{width:28px;height:28px;border-radius:50%;background:#252530;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:#888;margin-top:2px;}
+.opt-btn.correct .opt-letter{background:#639922;color:white;}
+.opt-btn.wrong .opt-letter{background:#E24B4A;color:white;}
+.opt-btn.reveal .opt-letter{background:#639922;color:white;}
+.opt-content{display:flex;flex-direction:column;gap:2px;}
+.opt-ar{font-size:16px;direction:rtl;text-align:right;line-height:1.5;}
+.opt-en{font-size:11px;color:#888;}
+.opt-btn.correct .opt-en,.opt-btn.wrong .opt-en,.opt-btn.reveal .opt-en{color:inherit;opacity:0.8;}
+.text-input-wrap{margin-bottom:1rem;}
+.text-input-wrap textarea{width:100%;border:0.5px solid #2e2e3e;border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;color:#f0f0f0;background:#1c1c24;resize:none;height:80px;outline:none;transition:border-color 0.15s;}
+.text-input-wrap textarea:focus{border-color:#534AB7;}
+.submit-btn{width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#534AB7,#7B6FD4);color:white;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:1rem;font-family:inherit;}
+.submit-btn:disabled{opacity:0.5;cursor:default;}
+.coach-box{border-radius:14px;padding:14px 16px;margin-bottom:1rem;display:none;border:0.5px solid;}
+.coach-box.correct{background:#0f2010;border-color:#2a5010;}
+.coach-box.wrong{background:#1a0f00;border-color:#503010;}
+.coach-box.partial{background:#1a1200;border-color:#504000;}
+.coach-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.coach-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.coach-name{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.coach-name.correct{color:#7DC947;}
+.coach-name.wrong{color:#EF9F27;}
+.coach-name.partial{color:#EFC847;}
+.coach-msg{font-size:14px;line-height:1.6;color:#ddd;}
+.coach-answer{background:#252530;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:13px;color:#aaa;line-height:1.6;}
+.coach-answer strong{color:#8B7FE8;}
+.coach-answer .ar{font-size:16px;direction:rtl;text-align:right;color:#f0f0f0;margin-bottom:4px;}
+.coach-trick{background:#1e1b3a;border-radius:10px;padding:10px 12px;margin-top:8px;font-size:13px;color:#c5bfee;line-height:1.5;}
+.coach-trick-label{font-size:10px;font-weight:700;color:#8B7FE8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+.keyword-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.kw-tag{font-size:11px;padding:2px 8px;border-radius:99px;background:#0f2010;color:#7DC947;font-weight:500;}
+.next-btn{width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#534AB7,#7B6FD4);color:white;font-size:15px;font-weight:600;cursor:pointer;display:none;font-family:inherit;}
+.result-card{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:16px;padding:2rem;text-align:center;}
+.result-emoji{font-size:56px;margin-bottom:1rem;}
+.result-title{font-size:22px;font-weight:700;margin-bottom:6px;color:#f0f0f0;}
+.result-score{font-size:44px;font-weight:700;background:linear-gradient(135deg,#534AB7,#8B7FE8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+.result-sub{font-size:14px;color:#888;margin-bottom:1.5rem;}
+.result-btns{display:flex;flex-direction:column;gap:8px;}
+.restart-btn{padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#534AB7,#7B6FD4);color:white;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
+.lb-view-btn{padding:12px;border-radius:12px;border:1.5px solid #2e2e3e;background:transparent;color:#8B7FE8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.lb-screen{padding:1rem;}
+.lb-title{font-size:20px;font-weight:700;margin-bottom:1.2rem;display:flex;align-items:center;gap:8px;}
+.lb-item{background:#1c1c24;border:0.5px solid #2e2e3e;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.lb-rank{width:32px;height:32px;border-radius:50%;background:#252530;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#888;flex-shrink:0;}
+.lb-rank.gold{background:#3a2a00;color:#EFC847;}
+.lb-rank.silver{background:#252530;color:#aaa;}
+.lb-rank.bronze{background:#2a1500;color:#cd7f32;}
+.lb-info{flex:1;}
+.lb-name{font-size:15px;font-weight:600;color:#f0f0f0;}
+.lb-sub{font-size:12px;color:#666;}
+.lb-pts{font-size:16px;font-weight:700;color:#8B7FE8;}
+.lb-empty{text-align:center;padding:2rem;color:#555;font-size:14px;}
+.lb-filter{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;}
+.lb-filter-btn{padding:6px 12px;border-radius:99px;border:0.5px solid #2e2e3e;background:transparent;color:#888;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.lb-filter-btn.active{background:#1e1b3a;color:#8B7FE8;border-color:#534AB7;}
+.saving-badge{font-size:12px;color:#888;text-align:center;padding:8px;display:none;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="screen-name" class="screen active">
+    <div class="name-screen">
+      <div style="font-size:56px">📚</div>
+      <h1>Study App</h1>
+      <p>Qatar History · Science · Arabic<br>Enter your name to start</p>
+      <input class="name-input" id="name-input" type="text" placeholder="your name..." maxlength="20" oninput="checkName()"/>
+      <button class="start-btn" id="start-btn" disabled>let's go →</button>
+    </div>
+  </div>
+
+  <div id="screen-subject" class="screen">
+    <div class="subject-screen">
+      <h2 id="subject-greeting">hey 👋</h2>
+      <p>pick a subject to study</p>
+      <div class="subject-grid">
+        <div class="subject-card" onclick="loadSubject('qatar')">
+          <div class="subject-icon" style="background:linear-gradient(135deg,#8B0000,#C0392B)">🇶🇦</div>
+          <div class="subject-info"><h3>Qatar History</h3><p>Lesson 8 — National Security, Tourism, Trade</p></div>
+        </div>
+        <div class="subject-card" onclick="loadSubject('science')">
+          <div class="subject-icon" style="background:linear-gradient(135deg,#0a3a6b,#1a6ab7)">⚡</div>
+          <div class="subject-info"><h3>Science</h3><p>Energy — Forms, Transfer, Conservation</p></div>
+        </div>
+        <div class="subject-card" onclick="loadSubject('arabic')">
+          <div class="subject-icon" style="background:linear-gradient(135deg,#1a6b1a,#2db52d)">🌙</div>
+          <div class="subject-info"><h3>Arabic — عربي</h3><p>Grammar, Reading, Vocabulary — Term 3</p></div>
+        </div>
+      </div>
+      <button class="leaderboard-btn" onclick="showLeaderboard()">🏆 leaderboard</button>
+    </div>
+  </div>
+
+  <div id="screen-study" class="screen">
+    <button class="back-btn" onclick="goSubject()">← back to subjects</button>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('quiz')"><span class="tab-icon">🎮</span>Quiz</button>
+      <button class="nav-tab" onclick="showTab('tips')"><span class="tab-icon">💡</span>Tips</button>
+      <button class="nav-tab" onclick="showTab('facts')"><span class="tab-icon">🤯</span>Facts</button>
+      <button class="nav-tab" onclick="showTab('cheat')"><span class="tab-icon">📋</span>Cheat</button>
+    </div>
+    <div id="tab-quiz">
+      <div id="game-view">
+        <div class="top-bar">
+          <div class="hearts" id="hearts"></div>
+          <div class="score-pill">⚡ <span id="score">0</span> pts</div>
+          <div class="streak-pill" id="streak-pill">🔥 <span id="streak">0</span></div>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress" style="width:0%"></div></div>
+        <div class="q-card">
+          <div id="q-img-wrap"></div>
+          <div class="q-body">
+            <div class="q-meta">
+              <div class="q-num" id="q-num">question 1</div>
+              <div id="type-badge-wrap"></div>
+            </div>
+            <div id="q-text-wrap"></div>
+          </div>
+        </div>
+        <div id="mc-section" class="options-grid"></div>
+        <div id="text-section" class="text-input-wrap" style="display:none">
+          <textarea id="user-answer" placeholder="type your answer..."></textarea>
+          <button class="submit-btn" id="submit-btn" onclick="submitText()">check answer ✓</button>
+        </div>
+        <div class="coach-box" id="coach-box">
+          <div class="coach-header">
+            <div class="coach-avatar" id="coach-avatar">🤖</div>
+            <span class="coach-name" id="coach-name">coach</span>
+          </div>
+          <div class="coach-msg" id="coach-msg"></div>
+          <div class="coach-answer" id="coach-answer" style="display:none"></div>
+          <div class="coach-trick" id="coach-trick" style="display:none"></div>
+          <div class="keyword-tags" id="keyword-tags"></div>
+        </div>
+        <button class="next-btn" id="next-btn">continue →</button>
+      </div>
+      <div id="result-view" style="display:none">
+        <div class="result-card">
+          <div class="result-emoji" id="r-emoji"></div>
+          <div class="result-title" id="r-title"></div>
+          <div class="result-score" id="r-score"></div>
+          <div class="result-sub" id="r-sub"></div>
+          <div class="saving-badge" id="saving-badge">saving to leaderboard...</div>
+          <div class="result-btns">
+            <button class="restart-btn" onclick="restart()">🔄 play again</button>
+            <button class="lb-view-btn" onclick="showLeaderboard()">🏆 see leaderboard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="tab-tips" style="display:none"></div>
+    <div id="tab-facts" style="display:none"></div>
+    <div id="tab-cheat" style="display:none"></div>
+  </div>
+
+  <div id="screen-lb" class="screen">
+    <div class="lb-screen">
+      <button class="back-btn" onclick="goSubject()">← back</button>
+      <div class="lb-title">🏆 Leaderboard</div>
+      <div class="lb-filter">
+        <button class="lb-filter-btn active" onclick="filterLB('all',this)">All</button>
+        <button class="lb-filter-btn" onclick="filterLB('qatar',this)">🇶🇦 Qatar</button>
+        <button class="lb-filter-btn" onclick="filterLB('science',this)">⚡ Science</button>
+        <button class="lb-filter-btn" onclick="filterLB('arabic',this)">🌙 Arabic</button>
+      </div>
+      <div id="lb-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let playerName='', currentSubject='', currentQuestions=[];
+let qIdx=0, score=0, lives=3, streak=0, answered=false;
+const letters=['A','B','C','D'];
+
+// ── LEADERBOARD (localStorage shared key) ──
+function getScores(){ return JSON.parse(localStorage.getItem('studyapp_lb_v2')||'[]'); }
+function saveScore(entry){
+  let s=getScores(); s.push(entry); s.sort((a,b)=>b.score-a.score);
+  if(s.length>100)s=s.slice(0,100);
+  localStorage.setItem('studyapp_lb_v2',JSON.stringify(s));
+}
+
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('screen-'+id).classList.add('active'); }
+function checkName(){ document.getElementById('start-btn').disabled=document.getElementById('name-input').value.trim().length<1; }
+document.getElementById('start-btn').onclick=()=>{ playerName=document.getElementById('name-input').value.trim(); goSubject(); };
+document.getElementById('name-input').addEventListener('keydown',e=>{ if(e.key==='Enter'&&document.getElementById('name-input').value.trim()) { playerName=document.getElementById('name-input').value.trim(); goSubject(); } });
+function goSubject(){ showScreen('subject'); document.getElementById('subject-greeting').textContent=`hey ${playerName} 👋`; }
+
+// ── ALL SUBJECT DATA ──
+const subjects = {
+  qatar: {
+    questions:[
+      {type:'mc',emoji:'👑',q:"Who is the Emir of Qatar?",opts:["Sheikh Hamad Al Thani","Sheikh Tamim bin Hamad Al Thani","Sheikh Mohammed Al Maktoum","Sheikh Khalifa Al Nahyan"],ans:1,exp:"Sheikh Tamim bin Hamad Al Thani is the Emir of Qatar.",trick:"T for Tamim = T for 'The Emir' 👑"},
+      {type:'text',emoji:'🛡️',q:"Name the 4 components of national security in Qatar.",keywords:["stability","democracy","global security","security agencies","alignment","development"],minMatch:3,exp:"1) Stability 2) Democracy 3) Alignment with global security 4) Development of national security agencies.",trick:"SDAD — Soldiers Don't Always Dance 😭"},
+      {type:'mc',emoji:'🛡️',q:"Which is NOT a component of national security?",opts:["Stability of the political system","Free education for all","Alignment with global security","Development of national security agencies"],ans:1,exp:"Free education is not listed.",trick:"Free stuff = not the answer 😂"},
+      {type:'mc',emoji:'⚔️',q:"What does the Ministry of Defense protect?",opts:["Citizens inside","Qatar's land, sea and air borders","Tourism","Trade"],ans:1,exp:"Ministry of Defense = land, sea, air borders.",trick:"Defense = ARMY = outside borders 🪖"},
+      {type:'mc',emoji:'🌿',q:"What is ecotourism?",opts:["Medical travel","Visiting natural attractions","Sports travel","Cultural visits"],ans:1,exp:"Ecotourism = visiting natural spots like Zekreet.",trick:"ECO = ecology = nature 🌿"},
+      {type:'mc',emoji:'⛽',q:"Qatar's main export by percentage?",opts:["Plastics","Fertilizers","Mineral fuel and oil","Machinery"],ans:2,exp:"Mineral fuel = 90.94% of exports.",trick:"Qatar = oil country ⛽"},
+      {type:'mc',emoji:'🌱',q:"What percentage are fertilizers?",opts:["2.98%","3.35%","10%","5.5%"],ans:0,exp:"Fertilizers = 2.98%.",trick:"Just under 3% 🌱"},
+      {type:'mc',emoji:'👮',q:"Which ministry has DIRECT contact with citizens?",opts:["Defense","Finance","Interior","Education"],ans:2,exp:"Ministry of Interior = direct contact with citizens.",trick:"Interior = inside = citizens 👮"},
+      {type:'text',emoji:'🏛️',q:"Purpose of developing national security agencies?",keywords:["protect","internal","external","security","state"],minMatch:2,exp:"To protect internal and external security of the state.",trick:"Inside + outside protection 🛡️"},
+      {type:'mc',emoji:'🌍',q:"How does alignment with global security work?",opts:["Qatar focuses internally only","Qatar is isolated","Qatar both affects and is affected by global security","Qatar controls global security"],ans:2,exp:"Two-way — Qatar affects and is affected by global security.",trick:"Two-way street 🛣️"},
+    ],
+    tips:[
+      {emoji:'🛡️',bg:'linear-gradient(135deg,#2a1f6b,#4a3aa0)',tag:'National Security',tagBg:'#1e1b3a',tagColor:'#8B7FE8',title:'Remember the 4 components',trick:"<strong>SDAD</strong> — Soldiers Don't Always Dance<br>S=Stability · D=Democracy · A=Alignment · D=Development"},
+      {emoji:'⚔️ vs 👮',bg:'linear-gradient(135deg,#1a0a0a,#3a1515)',tag:'Ministries',tagBg:'#1a2a3a',tagColor:'#4A90D9',title:'Defense vs Interior',trick:"<strong>Defense</strong> = ARMY 🪖 outside borders<br><strong>Interior</strong> = POLICE 👮 inside, citizens"},
+      {emoji:'🌍',bg:'linear-gradient(135deg,#0a1f0a,#1a4a1a)',tag:'Tourism',tagBg:'#0f2010',tagColor:'#7DC947',title:'3 Types of Tourism',trick:"<strong>ECO</strong> = nature 🌿 · <strong>MEDICAL</strong> = hospitals 🏥 · <strong>CULTURAL</strong> = learning 🎓"},
+      {emoji:'⛽',bg:'linear-gradient(135deg,#1f0f00,#4a2a00)',tag:'Trade',tagBg:'#201500',tagColor:'#EF9F27',title:"Qatar exports",trick:"Mineral fuel <strong>90.94%</strong> · Plastics 3.35% · Fertilizers 2.98%"},
+    ],
+    facts:[
+      {emoji:'👑',bg:'linear-gradient(135deg,#2a0a4a,#5a1a8a)',tag:'Emir',tagBg:'#1e1b3a',tagColor:'#8B7FE8',title:'Sheikh Tamim became Emir at 33',text:'2013, voluntarily handed by his father.',fact:'He played football for Qatar\'s national team ⚽'},
+      {emoji:'⛽',bg:'linear-gradient(135deg,#0a1a2a,#1a3a5a)',tag:'Economy',tagBg:'#1a2a3a',tagColor:'#4A90D9',title:'Qatar has one of the highest GDPs per capita',text:'All because of oil and gas.',fact:"Qatar's North Field is the world's largest single natural gas field 🌊"},
+    ],
+    cheat:[
+      {header:'🛡️ 4 Components',items:[{num:'1',text:'<strong>Stability</strong> of political system'},{num:'2',text:'<strong>Democracy</strong> — equal rights'},{num:'3',text:'<strong>Global alignment</strong> — two-way'},{num:'4',text:'<strong>Security agencies</strong> development'}]},
+      {header:'⛽ Exports',items:[{num:'1',text:'Mineral fuel — 90.94%'},{num:'2',text:'Plastics — 3.35%'},{num:'3',text:'Fertilizers — 2.98%'}]},
+    ]
+  },
+  science: {
+    questions:[
+      {type:'mc',emoji:'⚡',q:"What is energy?",opts:["Weight of an object","Ability to do work or cause change","Speed of movement","Temperature"],ans:1,exp:"Energy = ability to do work or cause change.",trick:"Energy = ability to DO something 💡"},
+      {type:'mc',emoji:'📚',q:"What energy does a book on a shelf have?",opts:["Kinetic","Sound","Gravitational potential","Chemical"],ans:2,exp:"Height = gravitational potential energy.",trick:"Height = GPE 📚"},
+      {type:'mc',emoji:'🌞',q:"Which is renewable energy?",opts:["Coal","Natural gas","Oil","Solar energy"],ans:3,exp:"Solar = renewable, won't run out.",trick:"Sun = never runs out ☀️"},
+      {type:'text',emoji:'🔥',q:"Name the 3 ways heat transfers.",keywords:["conduction","convection","radiation"],minMatch:3,exp:"Conduction, Convection, Radiation.",trick:"Con-Con-Rad 🔥"},
+      {type:'mc',emoji:'🥄',q:"Metal spoon in hot soup — what heat transfer?",opts:["Convection","Radiation","Conduction","Evaporation"],ans:2,exp:"Conduction = direct contact.",trick:"Contact = Conduction 🥄"},
+      {type:'mc',emoji:'☀️',q:"Sun heating Earth through space — what transfer?",opts:["Conduction","Convection","Radiation","Absorption"],ans:2,exp:"Radiation — waves, no medium needed.",trick:"Space = no particles = Radiation ☀️"},
+      {type:'mc',emoji:'🔋',q:"Energy transformation in a flashlight?",opts:["Light→Chemical→Electrical","Chemical→Electrical→Light","Electrical→Chemical→Sound","Thermal→Light→Electrical"],ans:1,exp:"Chemical (battery) → Electrical → Light.",trick:"Chem→Elec→Light 🔋"},
+      {type:'text',emoji:'⚖️',q:"State the Law of Conservation of Energy.",keywords:["created","destroyed","transform","conserved","neither"],minMatch:2,exp:"Energy cannot be created or destroyed — only transformed.",trick:"Energy is immortal 👻"},
+      {type:'mc',emoji:'🌡️',q:"20J input, 12J useful. Wasted energy?",opts:["12J","32J","8J","20J"],ans:2,exp:"20−12=8J wasted.",trick:"Wasted = Total − Useful 🔢"},
+      {type:'mc',emoji:'🧲',q:"What is a conductor?",opts:["Blocks heat","Allows heat/electricity through","Stores energy","Reflects light"],ans:1,exp:"Conductor = allows heat/electricity through. Examples: metals.",trick:"Conductor = lets it THROUGH 🔌"},
+    ],
+    tips:[
+      {emoji:'⚡',bg:'linear-gradient(135deg,#0a1a3a,#1a3a6a)',tag:'Energy Forms',tagBg:'#1a2a3a',tagColor:'#4A90D9',title:'All 8 forms of energy',trick:"<strong>K-G-E-C-T-L-S-El</strong><br>Kinetic · Gravitational PE · Elastic PE · Chemical · Thermal · Light · Sound · Electrical"},
+      {emoji:'🔥',bg:'linear-gradient(135deg,#3a0a00,#6a1a00)',tag:'Heat Transfer',tagBg:'#2a1000',tagColor:'#EF9F27',title:'Conduction vs Convection vs Radiation',trick:"<strong>Conduction</strong> = Contact (solids)<br><strong>Convection</strong> = Currents (fluids)<br><strong>Radiation</strong> = Rays (no medium)"},
+      {emoji:'♻️',bg:'linear-gradient(135deg,#1a1a00,#3a3a00)',tag:'Conservation',tagBg:'#201f00',tagColor:'#EFC847',title:'Law of Conservation',trick:"Energy is <strong>NEVER created or destroyed</strong> — just transforms<br>Total IN = Total OUT always"},
+    ],
+    facts:[
+      {emoji:'⚡',bg:'linear-gradient(135deg,#0a1a3a,#1a3a6a)',tag:'Energy',tagBg:'#1a2a3a',tagColor:'#4A90D9',title:'1 hour of sunlight could power the world for a year',text:'Solar energy is mind-blowing in scale.',fact:'A lightning bolt = about 1 billion volts ⚡'},
+      {emoji:'🔋',bg:'linear-gradient(135deg,#0a2a0a,#1a5a1a)',tag:'Batteries',tagBg:'#0f2010',tagColor:'#7DC947',title:"A battery stores chemical energy, not electricity",text:'Chemical reactions release electrical energy.',fact:'First battery invented 1800 by Volta — that\'s why it\'s called voltage ⚡'},
+    ],
+    cheat:[
+      {header:'🔥 3 Heat Transfers',items:[{num:'Cd',text:'<strong>Conduction</strong> — contact, solids'},{num:'Cv',text:'<strong>Convection</strong> — currents, fluids'},{num:'R',text:'<strong>Radiation</strong> — waves, no medium'}]},
+      {header:'♻️ Formulas',items:[{num:'!',text:'Energy cannot be created or destroyed'},{num:'=',text:'Wasted = Total input − Useful output'}]},
+    ]
+  },
+  arabic: {
+    questions:[
+      // المفرد والمثنى والجمع — Singular, Dual, Plural
+      {type:'mc',emoji:'📝',
+        qAr:'ما جمع كلمة "قِطّ"؟', qEn:'What is the plural of "قِطّ" (cat)?',
+        opts:[{ar:'قِطَطان',en:'two cats (dual)'},{ar:'قِطَط',en:'cats (plural)'},{ar:'قطوط',en:'cats (plural)'},{ar:'أقطاط',en:'cats (plural)'}],
+        ans:2, expAr:'جمع قِطّ = قطوط', expEn:'The plural of قِطّ (cat) is قطوط (cats).',
+        trick:'Singular قِطّ → Dual قِطَّان → Plural قطوط 🐱'},
+      {type:'mc',emoji:'📝',
+        qAr:'ما مثنى كلمة "زَرَافَة"؟', qEn:'What is the dual of "زَرَافَة" (giraffe)?',
+        opts:[{ar:'زَرَافَات',en:'giraffes (plural)'},{ar:'زَرَافَتَان',en:'two giraffes (dual)'},{ar:'زُرُف',en:'giraffes (plural)'},{ar:'زَرَافَة',en:'giraffe (singular)'}],
+        ans:1, expAr:'مثنى زَرَافَة = زَرَافَتَان', expEn:'Dual of زَرَافَة (giraffe) = زَرَافَتَان (two giraffes).',
+        trick:'Dual = add تَان to the end of feminine words 🦒'},
+      {type:'mc',emoji:'📝',
+        qAr:'ما مثنى كلمة "كِتَاب"؟', qEn:'What is the dual of "كِتَاب" (book)?',
+        opts:[{ar:'كُتُب',en:'books (plural)'},{ar:'كِتَابَان',en:'two books (dual)'},{ar:'كِتَابَات',en:'books (plural)'},{ar:'كُتَيِّب',en:'booklet'}],
+        ans:1, expAr:'مثنى كِتَاب = كِتَابَان', expEn:'Dual of كِتَاب (book) = كِتَابَان (two books).',
+        trick:'Dual masculine = add ان to the end 📚'},
+      // الأسماء الموصولة — Relative Pronouns
+      {type:'mc',emoji:'🔗',
+        qAr:'ما الاسم الموصول المناسب للمفرد المذكر؟', qEn:'Which relative pronoun fits a singular masculine noun?',
+        opts:[{ar:'التي',en:'which/that (feminine)'},{ar:'الذي',en:'which/that (masculine singular)'},{ar:'الذين',en:'who (masculine plural)'},{ar:'اللواتي',en:'who (feminine plural)'}],
+        ans:1, expAr:'الذي = للمفرد المذكر', expEn:'الذي = who/which/that for singular masculine.',
+        trick:'الذي = masculine singular. التي = feminine singular. الذين = masculine plural 🔗'},
+      {type:'mc',emoji:'🔗',
+        qAr:'أكمل: الطالبُ ___ نجحَ مجتهدٌ.', qEn:'Complete: The student ___ succeeded is hardworking.',
+        opts:[{ar:'التي',en:'which (feminine)'},{ar:'الذي',en:'who (masculine)'},{ar:'الذين',en:'who (plural)'},{ar:'ما',en:'what'}],
+        ans:1, expAr:'الطالب مذكر مفرد → الذي', expEn:'Student (طالب) is masculine singular → use الذي.',
+        trick:'Check the noun: masculine singular? → الذي 🎯'},
+      {type:'mc',emoji:'🔗',
+        qAr:'أكمل: الطالباتُ ___ نجحنَ مجتهداتٌ.', qEn:'Complete: The female students ___ succeeded are hardworking.',
+        opts:[{ar:'الذي',en:'who (masculine)'},{ar:'التي',en:'which (feminine singular)'},{ar:'اللواتي',en:'who (feminine plural)'},{ar:'الذين',en:'who (masculine plural)'}],
+        ans:2, expAr:'الطالبات جمع مؤنث → اللواتي', expEn:'Female students (طالبات) = feminine plural → use اللواتي.',
+        trick:'Feminine plural people → اللواتي 👩‍🎓'},
+      // تصريف الأفعال — Verb Conjugation
+      {type:'mc',emoji:'✏️',
+        qAr:'صرِّف الفعل "شَرِبَ" مع "هي":', qEn:'Conjugate the verb "شَرِبَ" (he drank) with "هي" (she):',
+        opts:[{ar:'شَرِبَ',en:'he drank'},{ar:'شَرِبَت',en:'she drank'},{ar:'شَرِبُوا',en:'they drank'},{ar:'تَشْرَبُ',en:'she drinks (present)'}],
+        ans:1, expAr:'هي شَرِبَت — أضف تاء التأنيث', expEn:'هي (she) + شَرِبَ = شَرِبَت. Add ت for feminine past tense.',
+        trick:'Past tense + هي = add ت at the end 💧'},
+      {type:'mc',emoji:'✏️',
+        qAr:'صرِّف الفعل "لَبِسَ" مع "هم":', qEn:'Conjugate "لَبِسَ" (he wore) with "هم" (they - males):',
+        opts:[{ar:'لَبِسَ',en:'he wore'},{ar:'لَبِسَت',en:'she wore'},{ar:'لَبِسُوا',en:'they wore'},{ar:'لَبِسْنَ',en:'they (females) wore'}],
+        ans:2, expAr:'هم لَبِسُوا — أضف واو الجماعة', expEn:'هم (they) + لَبِسَ = لَبِسُوا. Add وا for masculine plural past.',
+        trick:'Past tense + هم = add وا at the end 👗'},
+      // القراءة — Reading comprehension (عربة ساري)
+      {type:'mc',emoji:'🛒',
+        qAr:'ماذا يعمل سَارِي؟', qEn:'What does Sari do for work?',
+        opts:[{ar:'طالب',en:'student'},{ar:'بائع متجول',en:'street vendor'},{ar:'معلم',en:'teacher'},{ar:'طبيب',en:'doctor'}],
+        ans:1, expAr:'سَارِي بائع متجول يجول بعربته', expEn:'Sari is a street vendor who goes around with his cart.',
+        trick:'The story is called عربة ساري = Sari\'s cart 🛒'},
+      {type:'mc',emoji:'🛒',
+        qAr:'أين يذهب سَارِي بعربته؟', qEn:'Where does Sari go with his cart?',
+        opts:[{ar:'إلى المدرسة',en:'to school'},{ar:'إلى السوق',en:'to the market'},{ar:'يعبر طرقات القرية وممراتها',en:'through the village roads and alleyways'},{ar:'إلى البيت',en:'home'}],
+        ans:2, expAr:'يعبر طرقات القرية وممراتها', expEn:'He passes through the village roads and alleyways.',
+        trick:'Remember: he goes through القرية = the village 🏘️'},
+      // الإملاء — Sin vs Sad
+      {type:'mc',emoji:'🖊️',
+        qAr:'أيّ هذه الكلمات تُكتب بالسين؟', qEn:'Which of these words is written with السين (س) not الصاد (ص)?',
+        opts:[{ar:'صَيْف',en:'summer'},{ar:'صَابُون',en:'soap'},{ar:'سَمَك',en:'fish'},{ar:'صُورَة',en:'picture'}],
+        ans:2, expAr:'سَمَك تُكتب بالسين', expEn:'سَمَك (fish) is written with س (sin), not ص (sad).',
+        trick:'سَمَك، سَيِّد، سَعِيد = all start with س. صَيْف، صَابُون = start with ص 🐟'},
+      {type:'mc',emoji:'🖊️',
+        qAr:'أيّ هذه الكلمات تُكتب بالصاد؟', qEn:'Which word is written with الصاد (ص)?',
+        opts:[{ar:'سَفِينَة',en:'ship'},{ar:'سِتَّة',en:'six'},{ar:'صَحِيفَة',en:'newspaper'},{ar:'سَلَام',en:'peace'}],
+        ans:2, expAr:'صَحِيفَة تُكتب بالصاد', expEn:'صَحِيفَة (newspaper) is written with ص (sad).',
+        trick:'ص makes a heavier "S" sound. صَحِيفَة، صَاحِب، صَبَاح = all ص 📰'},
+    ],
+    tips:[
+      {emoji:'📝',bg:'linear-gradient(135deg,#1a3a1a,#2a6a2a)',tag:'المفرد والمثنى والجمع',tagBg:'#0f2010',tagColor:'#7DC947',
+        title:'Singular → Dual → Plural\nمفرد → مثنى → جمع',
+        trick:"<strong>Masculine dual:</strong> add ان → كِتَاب → كِتَابَان<br><strong>Feminine dual:</strong> add تَان → زَرَافَة → زَرَافَتَان<br><strong>Feminine plural:</strong> add ات → طالبة → طالبات<br><strong>Broken plural:</strong> just memorize! قِطّ → قطوط"},
+      {emoji:'🔗',bg:'linear-gradient(135deg,#1a1a3a,#2a2a6a)',tag:'الأسماء الموصولة',tagBg:'#1e1b3a',tagColor:'#8B7FE8',
+        title:'Relative Pronouns — أسماء الوصل',
+        trick:"<strong>الذي</strong> = who/which (masculine singular) — الطالب الذي...<br><strong>التي</strong> = who/which (feminine singular) — الطالبة التي...<br><strong>الذين</strong> = who (masculine plural) — الطلاب الذين...<br><strong>اللواتي</strong> = who (feminine plural) — الطالبات اللواتي..."},
+      {emoji:'✏️',bg:'linear-gradient(135deg,#3a1a00,#6a3a00)',tag:'تصريف الأفعال',tagBg:'#2a1000',tagColor:'#EF9F27',
+        title:'Verb Conjugation Past Tense — الماضي',
+        trick:"<strong>هو</strong> (he) = base form: شَرِبَ<br><strong>هي</strong> (she) = add ت: شَرِبَت<br><strong>هم</strong> (they m) = add وا: شَرِبُوا<br><strong>هن</strong> (they f) = add نَ: شَرِبْنَ<br><strong>أنا</strong> (I) = add تُ: شَرِبْتُ"},
+      {emoji:'🖊️',bg:'linear-gradient(135deg,#2a0a2a,#5a1a5a)',tag:'الإملاء — س vs ص',tagBg:'#200f20',tagColor:'#E090E0',
+        title:'When to use س (Sin) vs ص (Sad)',
+        trick:"<strong>س (Sin)</strong> = lighter S sound: سَمَك، سَعِيد، سَفِينَة<br><strong>ص (Sad)</strong> = heavier, deeper S: صَيْف، صَابُون، صَحِيفَة<br><br>Tip: ص sounds like you're pushing from your throat 🗣️"},
+    ],
+    facts:[
+      {emoji:'🌙',bg:'linear-gradient(135deg,#1a3a1a,#2a6a2a)',tag:'Arabic Language',tagBg:'#0f2010',tagColor:'#7DC947',
+        title:'Arabic is the 5th most spoken language in the world',text:'Over 400 million people speak Arabic as their first language.',
+        fact:'Arabic is written right to left and has 28 letters 📖'},
+      {emoji:'🔗',bg:'linear-gradient(135deg,#1a1a3a,#2a2a6a)',tag:'Grammar',tagBg:'#1e1b3a',tagColor:'#8B7FE8',
+        title:'Arabic has 3 numbers: singular, dual AND plural',text:'Unlike English which only has singular and plural, Arabic has a special dual form for exactly 2 of something.',
+        fact:'English lost its dual form 1000+ years ago. Arabic kept it! 🤯'},
+      {emoji:'✏️',bg:'linear-gradient(135deg,#3a1a00,#6a3a00)',tag:'Fun Fact',tagBg:'#2a1000',tagColor:'#EF9F27',
+        title:'The Quran kept Arabic grammar standardized for 1400 years',text:'Because the Quran is written in classical Arabic, the language barely changed its grammar rules.',
+        fact:'Arabic words are built from 3-letter roots. شَرِبَ، شَرَاب، مَشْرُوب all come from ش-ر-ب 🌊'},
+    ],
+    cheat:[
+      {header:'📝 المفرد والمثنى والجمع (Singular/Dual/Plural)',items:[
+        {num:'م',text:'<span class="cheat-ar">قِطّ ← قِطَّان ← قطوط</span><span class="cheat-en">cat → two cats → cats</span>'},
+        {num:'م',text:'<span class="cheat-ar">كِتَاب ← كِتَابَان ← كُتُب</span><span class="cheat-en">book → two books → books</span>'},
+        {num:'م',text:'<span class="cheat-ar">زَرَافَة ← زَرَافَتَان ← زَرَافَات</span><span class="cheat-en">giraffe → two giraffes → giraffes</span>'},
+        {num:'م',text:'<span class="cheat-ar">طالبة ← طالبتان ← طالبات</span><span class="cheat-en">female student → two → students</span>'},
+      ]},
+      {header:'🔗 الأسماء الموصولة (Relative Pronouns)',items:[
+        {num:'ذ',numBg:'#185FA5',text:'<span class="cheat-ar">الذي</span><span class="cheat-en">who/which — masculine singular: الطالبُ الذي...</span>'},
+        {num:'ت',numBg:'#3B7A3B',text:'<span class="cheat-ar">التي</span><span class="cheat-en">who/which — feminine singular: الطالبةُ التي...</span>'},
+        {num:'ن',numBg:'#A32D2D',text:'<span class="cheat-ar">الذين</span><span class="cheat-en">who — masculine plural: الطلابُ الذين...</span>'},
+        {num:'ل',numBg:'#854F0B',text:'<span class="cheat-ar">اللواتي</span><span class="cheat-en">who — feminine plural: الطالباتُ اللواتي...</span>'},
+      ]},
+      {header:'✏️ تصريف الأفعال — Past Tense (شَرِبَ = drank)',items:[
+        {num:'هو',text:'<span class="cheat-ar">شَرِبَ</span><span class="cheat-en">he drank</span>'},
+        {num:'هي',text:'<span class="cheat-ar">شَرِبَت</span><span class="cheat-en">she drank (+ت)</span>'},
+        {num:'هم',text:'<span class="cheat-ar">شَرِبُوا</span><span class="cheat-en">they (m) drank (+وا)</span>'},
+        {num:'هن',text:'<span class="cheat-ar">شَرِبْنَ</span><span class="cheat-en">they (f) drank (+نَ)</span>'},
+        {num:'أنا',text:'<span class="cheat-ar">شَرِبْتُ</span><span class="cheat-en">I drank (+تُ)</span>'},
+      ]},
+      {header:'🖊️ س vs ص',items:[
+        {num:'س',numBg:'#185FA5',text:'<strong>Sin (س)</strong> — lighter S: سَمَك، سَعِيد، سَفِينَة، سَلَام'},
+        {num:'ص',numBg:'#A32D2D',text:'<strong>Sad (ص)</strong> — heavy S: صَيْف، صَابُون، صَحِيفَة، صَاحِب'},
+      ]},
+    ]
+  }
+};
+
+function loadSubject(s){
+  currentSubject=s; currentQuestions=subjects[s].questions;
+  showScreen('study'); showTab('quiz'); resetQuiz();
+}
+
+function showTab(tab){
+  ['quiz','tips','facts','cheat'].forEach(t=>{ document.getElementById('tab-'+t).style.display=t===tab?'block':'none'; });
+  document.querySelectorAll('.nav-tab').forEach((el,i)=>{ el.classList.toggle('active',['quiz','tips','facts','cheat'][i]===tab); });
+  if(tab==='tips') renderTips();
+  if(tab==='facts') renderFacts();
+  if(tab==='cheat') renderCheat();
+}
+
+function renderTips(){
+  const c=subjects[currentSubject];
+  document.getElementById('tab-tips').innerHTML=c.tips.map(t=>`
+    <div class="card">
+      <div class="card-img-emoji" style="background:${t.bg}">${t.emoji}</div>
+      <div class="card-body">
+        <span class="card-tag" style="background:${t.tagBg};color:${t.tagColor}">${t.tag}</span>
+        <div class="card-title">${t.title.replace('\n','<br>')}</div>
+        <div class="trick-box"><div class="trick-label">🧠 Memory Trick</div><div class="trick-text">${t.trick}</div></div>
+      </div>
+    </div>`).join('');
+}
+function renderFacts(){
+  const c=subjects[currentSubject];
+  document.getElementById('tab-facts').innerHTML=c.facts.map(f=>`
+    <div class="card">
+      <div class="card-img-emoji" style="background:${f.bg}">${f.emoji}</div>
+      <div class="card-body">
+        <span class="card-tag" style="background:${f.tagBg};color:${f.tagColor}">${f.tag}</span>
+        <div class="card-title">${f.title}</div>
+        <div class="card-text">${f.text}</div>
+        <div class="fact-box"><div class="fact-label">🤯 Wild fact</div><div class="fact-text">${f.fact}</div></div>
+      </div>
+    </div>`).join('');
+}
+function renderCheat(){
+  const c=subjects[currentSubject];
+  document.getElementById('tab-cheat').innerHTML=c.cheat.map(s=>`
+    <div class="cheat-section">
+      <div class="cheat-header">${s.header}</div>
+      ${s.items.map(i=>`<div class="cheat-item"><div class="cheat-num" style="${i.numBg?'background:'+i.numBg:''}">${i.num}</div><div class="cheat-text">${i.text}</div></div>`).join('')}
+    </div>`).join('');
+}
+
+function resetQuiz(){ qIdx=0;score=0;lives=3;streak=0;answered=false; document.getElementById('game-view').style.display='block'; document.getElementById('result-view').style.display='none'; renderQ(); }
+function restart(){ resetQuiz(); }
+
+function renderHearts(){ const h=document.getElementById('hearts');h.innerHTML=''; for(let i=0;i<3;i++){const s=document.createElement('span');s.className='heart';s.textContent=i<lives?'❤️':'🖤';h.appendChild(s);} }
+
+function renderQ(){
+  if(qIdx>=currentQuestions.length||lives<=0){showResult();return;}
+  const q=currentQuestions[qIdx];
+  document.getElementById('q-num').textContent=`question ${qIdx+1} of ${currentQuestions.length}`;
+  document.getElementById('progress').style.width=((qIdx/currentQuestions.length)*100)+'%';
+  document.getElementById('score').textContent=score;
+  const sp=document.getElementById('streak-pill');
+  if(streak>=2){sp.style.display='flex';document.getElementById('streak').textContent=streak+'🔥';}else{sp.style.display='none';}
+  renderHearts();
+  document.getElementById('q-img-wrap').innerHTML=`<div class="q-img-placeholder">${q.emoji}</div>`;
+  document.getElementById('type-badge-wrap').innerHTML=q.type==='mc'?'<span class="type-badge type-mc">multiple choice</span>':'<span class="type-badge type-text">✍️ type answer</span>';
+
+  // Question text — Arabic gets bilingual display
+  const tw=document.getElementById('q-text-wrap');
+  if(q.qAr){
+    tw.innerHTML=`<div class="q-text-ar">${q.qAr}</div><div class="q-text-en">${q.qEn}</div>`;
+  } else {
+    tw.innerHTML=`<div class="q-text">${q.q}</div>`;
+  }
+
+  const mc=document.getElementById('mc-section'),tx=document.getElementById('text-section'),ta=document.getElementById('user-answer'),sb=document.getElementById('submit-btn');
+  if(q.type==='mc'){
+    mc.style.display='flex';tx.style.display='none';mc.innerHTML='';
+    const opts=q.opts||[];
+    opts.forEach((o,i)=>{
+      const b=document.createElement('button');b.className='opt-btn';
+      if(typeof o==='object'){
+        b.innerHTML=`<span class="opt-letter">${letters[i]}</span><div class="opt-content"><div class="opt-ar">${o.ar}</div><div class="opt-en">${o.en}</div></div>`;
+      } else {
+        b.innerHTML=`<span class="opt-letter">${letters[i]}</span>${o}`;
+      }
+      b.onclick=()=>chooseMC(i);mc.appendChild(b);
+    });
+  } else { mc.style.display='none';tx.style.display='block';ta.value='';ta.disabled=false;sb.disabled=false; }
+  document.getElementById('coach-box').style.display='none';
+  document.getElementById('next-btn').style.display='none';
+  answered=false;
+}
+
+function showCoach(type,msg,answerText,trickText,matchedKW){
+  const box=document.getElementById('coach-box');
+  box.className='coach-box '+type;
+  document.getElementById('coach-avatar').className='coach-avatar '+type;
+  document.getElementById('coach-name').className='coach-name '+type;
+  document.getElementById('coach-avatar').textContent=type==='correct'?'🤙':type==='wrong'?'😤':'🤔';
+  document.getElementById('coach-msg').innerHTML=msg;
+  const ansEl=document.getElementById('coach-answer'),trEl=document.getElementById('coach-trick');
+  if(answerText){ansEl.innerHTML=answerText;ansEl.style.display='block';}else{ansEl.style.display='none';}
+  if(trickText){trEl.innerHTML=`<div class="coach-trick-label">🧠 how to remember</div>${trickText}`;trEl.style.display='block';}else{trEl.style.display='none';}
+  document.getElementById('keyword-tags').innerHTML=matchedKW&&matchedKW.length>0?matchedKW.map(k=>`<span class="kw-tag">✓ ${k}</span>`).join(''):'';
+  box.style.display='block';
+}
+
+function chooseMC(i){
+  if(answered)return;answered=true;
+  const q=currentQuestions[qIdx],btns=document.querySelectorAll('.opt-btn');
+  btns.forEach(b=>b.disabled=true);
+  if(i===q.ans){
+    btns[i].classList.add('correct');score+=streak>=2?20:10;streak++;
+    showCoach('correct','yes bro! 🔥',null,null,null);
+  } else {
+    btns[i].classList.add('wrong');btns[q.ans].classList.add('reveal');lives--;streak=0;
+    const picked=q.opts[i],correct=q.opts[q.ans];
+    const pickedText=typeof picked==='object'?`${picked.ar} (${picked.en})`:picked;
+    const correctText=typeof correct==='object'?`${correct.ar} (${correct.en})`:correct;
+    let ansHtml=q.expAr?`<div class="ar">${q.expAr}</div><div style="font-size:12px;color:#888">${q.expEn}</div>`:`<strong>correct answer:</strong><br>${correctText}`;
+    showCoach('wrong',`nah wrong ❌ you picked <strong>${pickedText}</strong>`,ansHtml,q.trick||null,null);
+  }
+  document.getElementById('score').textContent=score;renderHearts();
+  const sp=document.getElementById('streak-pill');
+  if(streak>=2){sp.style.display='flex';document.getElementById('streak').textContent=streak+'🔥';}else{sp.style.display='none';}
+  if(lives<=0){setTimeout(showResult,1600);}else{document.getElementById('next-btn').style.display='block';}
+}
+
+function submitText(){
+  if(answered)return;
+  const q=currentQuestions[qIdx],val=document.getElementById('user-answer').value.toLowerCase().trim();
+  if(!val)return;answered=true;
+  document.getElementById('user-answer').disabled=true;document.getElementById('submit-btn').disabled=true;
+  const matched=q.keywords.filter(kw=>val.includes(kw.toLowerCase())),ratio=matched.length/q.minMatch;
+  if(ratio>=1){score+=streak>=2?20:10;streak++;showCoach('correct','nice bro! 🎯',null,null,matched);}
+  else if(ratio>=0.5){score+=5;streak=0;showCoach('partial','almost 🤔',`<strong>correct answer:</strong><br>${q.exp}`,q.trick||null,matched);}
+  else{lives--;streak=0;showCoach('wrong','nah bro 😤',`<strong>correct answer:</strong><br>${q.exp}`,q.trick||null,[]);}
+  document.getElementById('score').textContent=score;renderHearts();
+  const sp=document.getElementById('streak-pill');
+  if(streak>=2){sp.style.display='flex';document.getElementById('streak').textContent=streak+'🔥';}else{sp.style.display='none';}
+  if(lives<=0){setTimeout(showResult,1600);}else{document.getElementById('next-btn').style.display='block';}
+}
+
+document.getElementById('next-btn').onclick=()=>{qIdx++;renderQ();};
+document.getElementById('user-answer').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!answered)submitText();}});
+
+function showResult(){
+  document.getElementById('game-view').style.display='none';document.getElementById('result-view').style.display='block';
+  const pct=Math.round((score/(currentQuestions.length*10))*100);
+  let emoji,title,sub;
+  if(lives<=0){emoji='💀';title=`${playerName} ran out of hearts 😭`;sub=`${score} pts before dying`;}
+  else if(pct>=90){emoji='🏆';title="you actually cooked!!";sub="exam ready fr 🔥";}
+  else if(pct>=70){emoji='😤';title="pretty solid ngl";sub="run it back once more";}
+  else if(pct>=50){emoji='😬';title="mid bro";sub="check the cheatsheet";}
+  else{emoji='💀';title="bro study";sub="cheatsheet tab NOW";}
+  document.getElementById('r-emoji').textContent=emoji;
+  document.getElementById('r-title').textContent=title;
+  document.getElementById('r-score').textContent=score+' pts';
+  document.getElementById('r-sub').textContent=sub;
+  saveScore({name:playerName,subject:currentSubject,score,total:currentQuestions.length*10,date:Date.now()});
+  const badge=document.getElementById('saving-badge');
+  badge.style.display='block';badge.textContent='✅ score saved!';
+  setTimeout(()=>badge.style.display='none',2000);
+}
+
+let lbFilter='all';
+function showLeaderboard(){showScreen('lb');renderLB();}
+function filterLB(f,btn){lbFilter=f;document.querySelectorAll('.lb-filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderLB();}
+function renderLB(){
+  let data=getScores();
+  if(lbFilter!=='all')data=data.filter(e=>e.subject===lbFilter);
+  data.sort((a,b)=>b.score-a.score);
+  const el=document.getElementById('lb-list');
+  if(data.length===0){el.innerHTML='<div class="lb-empty">no scores yet 👀<br>be the first!</div>';return;}
+  el.innerHTML=data.slice(0,20).map((e,i)=>{
+    const medal=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const icon=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+    const subLabel=e.subject==='qatar'?'🇶🇦 Qatar':e.subject==='science'?'⚡ Science':e.subject==='arabic'?'🌙 Arabic':e.subject;
+    return`<div class="lb-item"><div class="lb-rank ${medal}">${icon}</div><div class="lb-info"><div class="lb-name">${e.name}</div><div class="lb-sub">${subLabel}</div></div><div class="lb-pts">${e.score} pts</div></div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
